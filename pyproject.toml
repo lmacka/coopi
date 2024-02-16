@@ -8,6 +8,7 @@ readme = "README.md"
 [[tool.poetry.source]]
 name = "piwheels"
 url = "https://www.piwheels.org/simple/"
+priority = "default"
 
 [tool.poetry.dependencies]
 python = ">=3.9"
@@ -18,9 +19,10 @@ logging = "^0.4.9.6"
 board = "^1.0"
 numpy = "^1.26.4"
 
-#[build-system]
-#requires = ["poetry-core"]
-#build-backend = "poetry.core.masonry.api"
 smbus = "^1.1.post2"
 rpi-ws281x = "4.3.4"
 adafruit-circuitpython-bh1750 = "^1.1.10"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
