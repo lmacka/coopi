@@ -246,9 +246,7 @@ version = "0.4.9.6"
 description = "A logging module for Python"
 optional = false
 python-versions = "*"
-files = [
-    {file = "logging-0.4.9.6.tar.gz", hash = "sha256:26f6b50773f085042d301085bd1bf5d9f3735704db9f37c1ce6d8b85c38f2417"},
-]
+files = []
 
 [[package]]
 name = "numpy"
@@ -500,4 +498,4 @@ reference = "piwheels"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9"
-content-hash = "9be386288e40206af28e7802d1e7c204c19ecb38d3ab12993fa7f63e596751d2"
+content-hash = "88e545429638abed6151e85e7acd1cc9b1b6d19ec0ad5a236858732eec66a5c3"
