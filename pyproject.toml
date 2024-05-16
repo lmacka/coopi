@@ -12,16 +12,13 @@ priority = "default"
 
 [tool.poetry.dependencies]
 python = ">=3.9"
-imutils = "^0.5.4"
 rpi-gpio = "^0.7.1"
-automationhat = "^0.4.1"
-logging = "^0.4.9.6"
+automationhat = "^1.0.0"
+adafruit-blinka = "^8.39.1"
 board = "^1.0"
-numpy = "^1.26.4"
-
 smbus = "^1.1.post2"
-rpi-ws281x = "4.3.4"
-adafruit-circuitpython-bh1750 = "^1.1.10"
+greenponik-bh1750 = "^0.0.7"
+adafruit-circuitpython-dht = "^4.0.4"
 
 [build-system]
 requires = ["poetry-core"]

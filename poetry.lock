@@ -2,17 +2,17 @@
 
 [[package]]
 name = "adafruit-blinka"
-version = "8.32.0"
+version = "8.39.1"
 description = "CircuitPython APIs for non-CircuitPython versions of Python such as CPython on Linux and MicroPython."
 optional = false
 python-versions = ">=3.7.0"
 files = [
-    {file = "Adafruit_Blinka-8.32.0-py3-none-any.whl", hash = "sha256:3aceebdfcd6620c7c82f2d6992fb9376460931779e3a45eec256846c6a91d852"},
+    {file = "Adafruit_Blinka-8.39.1-py3-none-any.whl", hash = "sha256:5129d8536a6614ca95c6e9b4b2b06739fe0535689152d6bb0e455b3e8a58f732"},
 ]
 
 [package.dependencies]
 adafruit-circuitpython-typing = "*"
-Adafruit-PlatformDetect = ">=3.53.0"
+Adafruit-PlatformDetect = ">=3.62.0"
 Adafruit-PureIO = ">=1.1.7"
 pyftdi = ">=0.40.0"
 "RPi.GPIO" = "*"
@@ -46,17 +46,53 @@ reference = "piwheels"
 
 [[package]]
 name = "adafruit-circuitpython-busdevice"
-version = "5.2.6"
+version = "5.2.9"
 description = "CircuitPython bus device classes to manage bus sharing."
 optional = false
 python-versions = "*"
 files = [
-    {file = "adafruit_circuitpython_busdevice-5.2.6-py3-none-any.whl", hash = "sha256:b6eed0dd8444c3812a26dc34590d83449c9617454618d55417bae0069cf383b3"},
+    {file = "adafruit_circuitpython_busdevice-5.2.9-py3-none-any.whl", hash = "sha256:fcc299b5d059ddce2dcb58cf8d2654a91984987a6664fed5470a7be7c7fd0eef"},
 ]
 
 [package.dependencies]
 Adafruit-Blinka = ">=7.0.0"
 adafruit-circuitpython-typing = "*"
+
+[package.source]
+type = "legacy"
+url = "https://www.piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "adafruit-circuitpython-connectionmanager"
+version = "3.1.0"
+description = "A urllib3.poolmanager/urllib3.connectionpool-like library for managing sockets and connections"
+optional = false
+python-versions = "*"
+files = [
+    {file = "adafruit_circuitpython_connectionmanager-3.1.0-py3-none-any.whl", hash = "sha256:7c0e0735181ff748141eb384063bc3c2c6a27646d6af0f324a9d9556ba966e94"},
+]
+
+[package.dependencies]
+Adafruit-Blinka = "*"
+
+[package.source]
+type = "legacy"
+url = "https://www.piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "adafruit-circuitpython-dht"
+version = "4.0.4"
+description = "CircuitPython support for DHT11 and DHT22 type temperature/humidity devices"
+optional = false
+python-versions = "*"
+files = [
+    {file = "adafruit_circuitpython_dht-4.0.4-py3-none-any.whl", hash = "sha256:4ce31aec021e3f09df3f2c63ecefedecd88b665ca325966e7bf4f02ad5d721db"},
+]
+
+[package.dependencies]
+Adafruit-Blinka = "*"
 
 [package.source]
 type = "legacy"
@@ -86,16 +122,17 @@ reference = "piwheels"
 
 [[package]]
 name = "adafruit-circuitpython-requests"
-version = "2.0.5"
+version = "3.2.9"
 description = "A requests-like library for web interfacing"
 optional = false
 python-versions = "*"
 files = [
-    {file = "adafruit_circuitpython_requests-2.0.5-py3-none-any.whl", hash = "sha256:44220453c1d209437363b71b150ec308b058f6118adc107da408bc38296402ac"},
+    {file = "adafruit_circuitpython_requests-3.2.9-py3-none-any.whl", hash = "sha256:6e2d23a41897a92ede0cd0113ff6af2adc0b0256a4c0eb4e0556011e01449023"},
 ]
 
 [package.dependencies]
 Adafruit-Blinka = "*"
+Adafruit-Circuitpython-ConnectionManager = "*"
 
 [package.source]
 type = "legacy"
@@ -104,12 +141,12 @@ reference = "piwheels"
 
 [[package]]
 name = "adafruit-circuitpython-typing"
-version = "1.10.2"
+version = "1.10.3"
 description = "Types needed for type annotation that are not in `typing`"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 files = [
-    {file = "adafruit_circuitpython_typing-1.10.2-py3-none-any.whl", hash = "sha256:44fe054431a867c7523f5f8b50b73c79c51d4b24b5bdf62947a064fa26791c31"},
+    {file = "adafruit_circuitpython_typing-1.10.3-py3-none-any.whl", hash = "sha256:43ae1cca51305c9de2e6b092aafeb5eb24018e6d8aec98dff317daf765e455c4"},
 ]
 
 [package.dependencies]
@@ -124,13 +161,31 @@ url = "https://www.piwheels.org/simple"
 reference = "piwheels"
 
 [[package]]
+name = "adafruit-extended-bus"
+version = "1.0.2"
+description = "Helper Library for Blinka to allow creating I2C and SPI busio objects by passing in the Bus ID."
+optional = false
+python-versions = "*"
+files = [
+    {file = "adafruit_extended_bus-1.0.2-py3-none-any.whl", hash = "sha256:1e3ec9540a2b1d627274fa62003afdbc66e5232d0df7d17a311e9471bf0a0b91"},
+]
+
+[package.dependencies]
+Adafruit-Blinka = "*"
+
+[package.source]
+type = "legacy"
+url = "https://www.piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
 name = "adafruit-platformdetect"
-version = "3.60.0"
+version = "3.63.0"
 description = "Platform detection for use by libraries like Adafruit-Blinka."
 optional = false
 python-versions = "*"
 files = [
-    {file = "Adafruit_PlatformDetect-3.60.0-py3-none-any.whl", hash = "sha256:349811278d0ba3169cdd50dca089a0ee98f5e58fc56b5ac03beeeb727ee429a4"},
+    {file = "Adafruit_PlatformDetect-3.63.0-py3-none-any.whl", hash = "sha256:455a822416a8b993855aeb1fcd5a8d3b39d7193b7e341495e277ee9b92a2a328"},
 ]
 
 [package.source]
@@ -154,38 +209,14 @@ url = "https://www.piwheels.org/simple"
 reference = "piwheels"
 
 [[package]]
-name = "ads1015"
-version = "1.0.0"
-description = "Python library for the ADS1015 and ADS1115 4-channel ADC"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "ads1015-1.0.0-py3-none-any.whl", hash = "sha256:3497a7457f045b4abd049e96ab3a5ff95603a3b08b36273e4dfa6234964130df"},
-]
-
-[package.dependencies]
-i2cdevice = ">=1.0.0"
-
-[package.source]
-type = "legacy"
-url = "https://www.piwheels.org/simple"
-reference = "piwheels"
-
-[[package]]
 name = "automationhat"
-version = "0.4.1"
-description = "Automation HAT Driver"
+version = "1.0.0"
+description = ""
 optional = false
-python-versions = ">=2.7"
+python-versions = "*"
 files = [
-    {file = "automationhat-0.4.1-py3-none-any.whl", hash = "sha256:2b8a845072113902d4d2f021884eb24c1f06e200bbb13d67d112ae9dbbf18275"},
+    {file = "automationhat-1.0.0-py3-none-any.whl", hash = "sha256:e62849aa5c191c42cb52f964869a16f5af02dd3acfd6f1b536ab08a0a1dc96ab"},
 ]
-
-[package.dependencies]
-ads1015 = ">=0.0.8"
-"RPi.GPIO" = "*"
-sn3218 = ">=2.0.0"
-ST7735 = "*"
 
 [package.source]
 type = "legacy"
@@ -208,58 +239,19 @@ url = "https://www.piwheels.org/simple"
 reference = "piwheels"
 
 [[package]]
-name = "i2cdevice"
-version = "1.0.0"
-description = "Python framework for interacting with SMBus-compatible i2c devices"
+name = "greenponik-bh1750"
+version = "0.0.7"
+description = "Read BH1750 through Python3 on raspberry pi"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.6.0"
 files = [
-    {file = "i2cdevice-1.0.0-py3-none-any.whl", hash = "sha256:595cfa3815aab4d8a4bbe1cbd4a4e1271d56cf7c1de367eab6a94dd80566f0c1"},
+    {file = "greenponik_bh1750-0.0.7-py3-none-any.whl", hash = "sha256:5d7decce3b20e85b8ef89c191f784dab870785161808f809272fa0ca88206ccc"},
 ]
 
 [package.dependencies]
-smbus2 = "*"
-
-[package.source]
-type = "legacy"
-url = "https://www.piwheels.org/simple"
-reference = "piwheels"
-
-[[package]]
-name = "imutils"
-version = "0.5.4"
-description = "A series of convenience functions to make basic image processing functions such as translation, rotation, resizing, skeletonization, displaying Matplotlib images, sorting contours, detecting edges, and much more easier with OpenCV and both Python 2.7 and Python 3."
-optional = false
-python-versions = "*"
-files = [
-    {file = "imutils-0.5.4-py3-none-any.whl", hash = "sha256:f233020af4b67d42caea543b8a8c9aebbb7f5159d7ef6d7dc8980282a20ade88"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://www.piwheels.org/simple"
-reference = "piwheels"
-
-[[package]]
-name = "logging"
-version = "0.4.9.6"
-description = "A logging module for Python"
-optional = false
-python-versions = "*"
-files = []
-
-[[package]]
-name = "numpy"
-version = "1.26.4"
-description = "Fundamental package for array computing in Python"
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "numpy-1.26.4-cp311-cp311-linux_armv6l.whl", hash = "sha256:81a37a6d46f316f63b79f58865068410ff7a9e6bc37555c7600f1f608d7872fc"},
-    {file = "numpy-1.26.4-cp311-cp311-linux_armv7l.whl", hash = "sha256:81a37a6d46f316f63b79f58865068410ff7a9e6bc37555c7600f1f608d7872fc"},
-    {file = "numpy-1.26.4-cp39-cp39-linux_armv6l.whl", hash = "sha256:664008f1f01915d163caa021a2324f20c63e0d18f434a811a69ae2e24d322618"},
-    {file = "numpy-1.26.4-cp39-cp39-linux_armv7l.whl", hash = "sha256:664008f1f01915d163caa021a2324f20c63e0d18f434a811a69ae2e24d322618"},
-]
+adafruit-blinka = "*"
+adafruit-circuitpython-bh1750 = "*"
+adafruit-extended-bus = "*"
 
 [package.source]
 type = "legacy"
@@ -268,12 +260,12 @@ reference = "piwheels"
 
 [[package]]
 name = "pyftdi"
-version = "0.55.0"
+version = "0.55.4"
 description = "FTDI device driver (pure Python)"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pyftdi-0.55.0-py3-none-any.whl", hash = "sha256:662770e70b3c26dd8832a63adc660836f6557808005dd2735182f0c5a6aaa449"},
+    {file = "pyftdi-0.55.4-py3-none-any.whl", hash = "sha256:24dfadb6cff83e804f3a68a57d21c58e761fb79b402e6756638588bd2cb36a63"},
 ]
 
 [package.dependencies]
@@ -342,19 +334,17 @@ reference = "piwheels"
 
 [[package]]
 name = "rpi-ws281x"
-version = "4.3.4"
+version = "5.0.0"
 description = "Userspace Raspberry Pi PWM/PCM/SPI library for SK6812 and WS281X LEDs."
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 files = [
-    {file = "rpi_ws281x-4.3.4-cp311-cp311-linux_armv6l.whl", hash = "sha256:92546a34b990d342d14dd0c0bc2adcbe6594c5beb65aa1a86560cc24c7ada4a5"},
-    {file = "rpi_ws281x-4.3.4-cp311-cp311-linux_armv7l.whl", hash = "sha256:92546a34b990d342d14dd0c0bc2adcbe6594c5beb65aa1a86560cc24c7ada4a5"},
-    {file = "rpi_ws281x-4.3.4-cp35-cp35m-linux_armv6l.whl", hash = "sha256:439c518548554bddc40323f11509d34ae6cdc5f21516c6d5f770c48d1d5683ec"},
-    {file = "rpi_ws281x-4.3.4-cp35-cp35m-linux_armv7l.whl", hash = "sha256:439c518548554bddc40323f11509d34ae6cdc5f21516c6d5f770c48d1d5683ec"},
-    {file = "rpi_ws281x-4.3.4-cp37-cp37m-linux_armv6l.whl", hash = "sha256:bf71750f5aaf253bdda7ca4d3ed71208827806668801c419f40d4c08a3afd283"},
-    {file = "rpi_ws281x-4.3.4-cp37-cp37m-linux_armv7l.whl", hash = "sha256:bf71750f5aaf253bdda7ca4d3ed71208827806668801c419f40d4c08a3afd283"},
-    {file = "rpi_ws281x-4.3.4-cp39-cp39-linux_armv6l.whl", hash = "sha256:bdabb32c1d2112d826547a57702a6fc81209dad98d00ef52378f5d7f8820bbfb"},
-    {file = "rpi_ws281x-4.3.4-cp39-cp39-linux_armv7l.whl", hash = "sha256:bdabb32c1d2112d826547a57702a6fc81209dad98d00ef52378f5d7f8820bbfb"},
+    {file = "rpi_ws281x-5.0.0-cp311-cp311-linux_armv6l.whl", hash = "sha256:da85589984679b06d877022bf2d8ce6cb9aa08a4c36c8dca297cb2dba83eaa42"},
+    {file = "rpi_ws281x-5.0.0-cp311-cp311-linux_armv7l.whl", hash = "sha256:da85589984679b06d877022bf2d8ce6cb9aa08a4c36c8dca297cb2dba83eaa42"},
+    {file = "rpi_ws281x-5.0.0-cp37-cp37m-linux_armv6l.whl", hash = "sha256:2d9d8cb8f54bf68c1935a9b466aef8960f2e4aec4328057c0a9e59fc8eaad187"},
+    {file = "rpi_ws281x-5.0.0-cp37-cp37m-linux_armv7l.whl", hash = "sha256:2d9d8cb8f54bf68c1935a9b466aef8960f2e4aec4328057c0a9e59fc8eaad187"},
+    {file = "rpi_ws281x-5.0.0-cp39-cp39-linux_armv6l.whl", hash = "sha256:3c4af921dda22a393e42793e799823918e7d7a5bb71e50e885c22769ffa00c73"},
+    {file = "rpi_ws281x-5.0.0-cp39-cp39-linux_armv7l.whl", hash = "sha256:3c4af921dda22a393e42793e799823918e7d7a5bb71e50e885c22769ffa00c73"},
 ]
 
 [package.source]
@@ -387,80 +377,6 @@ url = "https://www.piwheels.org/simple"
 reference = "piwheels"
 
 [[package]]
-name = "smbus2"
-version = "0.4.3"
-description = "smbus2 is a drop-in replacement for smbus-cffi/smbus-python in pure Python"
-optional = false
-python-versions = "*"
-files = [
-    {file = "smbus2-0.4.3-py2.py3-none-any.whl", hash = "sha256:4747d1f1394d9fb900d960a76931166645f901f3170616ab3aeb7eaaa6505bf5"},
-]
-
-[package.extras]
-docs = ["sphinx (>=1.5.3)"]
-qa = ["flake8"]
-test = ["mock", "nose"]
-
-[package.source]
-type = "legacy"
-url = "https://www.piwheels.org/simple"
-reference = "piwheels"
-
-[[package]]
-name = "sn3218"
-version = "2.0.0"
-description = "Library for the SN3218 18-channel constant current LED driver"
-optional = false
-python-versions = ">=2.7"
-files = [
-    {file = "sn3218-2.0.0-py3-none-any.whl", hash = "sha256:410fad79ff0abc4d3abb3580e327aaf454073ccb1be407a643ad14def1226928"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://www.piwheels.org/simple"
-reference = "piwheels"
-
-[[package]]
-name = "spidev"
-version = "3.6"
-description = "Python bindings for Linux SPI access through spidev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "spidev-3.6-cp311-cp311-linux_armv6l.whl", hash = "sha256:7143daf8ac2238f7eeabc059db334265ad3b7cb936cecf6412c6cad502155ba4"},
-    {file = "spidev-3.6-cp311-cp311-linux_armv7l.whl", hash = "sha256:7143daf8ac2238f7eeabc059db334265ad3b7cb936cecf6412c6cad502155ba4"},
-    {file = "spidev-3.6-cp37-cp37m-linux_armv6l.whl", hash = "sha256:ef47ae501d5b307ce7411e3ddab4b4d04fa31fdaed5e5730a4e3336f65c5f76b"},
-    {file = "spidev-3.6-cp37-cp37m-linux_armv7l.whl", hash = "sha256:ef47ae501d5b307ce7411e3ddab4b4d04fa31fdaed5e5730a4e3336f65c5f76b"},
-    {file = "spidev-3.6-cp39-cp39-linux_armv6l.whl", hash = "sha256:202698d9f7906cca548c301b97eee117bc029642af3e743b28597f752d11c0ee"},
-    {file = "spidev-3.6-cp39-cp39-linux_armv7l.whl", hash = "sha256:202698d9f7906cca548c301b97eee117bc029642af3e743b28597f752d11c0ee"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://www.piwheels.org/simple"
-reference = "piwheels"
-
-[[package]]
-name = "st7735"
-version = "1.0.0"
-description = "Library to control an ST7735 168x80 TFT LCD display."
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "st7735-1.0.0-py3-none-any.whl", hash = "sha256:20eb580e3d2462d8498ea5922cb5c1128abc46cbbc91998f07911054b3594f83"},
-]
-
-[package.dependencies]
-numpy = "*"
-spidev = ">=3.4"
-
-[package.source]
-type = "legacy"
-url = "https://www.piwheels.org/simple"
-reference = "piwheels"
-
-[[package]]
 name = "sysv-ipc"
 version = "1.1.0"
 description = "System V IPC primitives (semaphores, shared memory and message queues) for Python"
@@ -482,12 +398,12 @@ reference = "piwheels"
 
 [[package]]
 name = "typing-extensions"
-version = "4.9.0"
+version = "4.11.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "typing_extensions-4.9.0-py3-none-any.whl", hash = "sha256:8fed2a6939ccf276e2a354b8be3958e7e8ab1b9a528f208ff1202853244ada8b"},
+    {file = "typing_extensions-4.11.0-py3-none-any.whl", hash = "sha256:6aa47bf7f3ca4581002094184ca00889dd87807690c290608df37e52cd50a4f8"},
 ]
 
 [package.source]
@@ -498,4 +414,4 @@ reference = "piwheels"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9"
-content-hash = "88e545429638abed6151e85e7acd1cc9b1b6d19ec0ad5a236858732eec66a5c3"
+content-hash = "fd42c4d7225640e5b1bd6718800f940388db784176832cab2a608acf48e5a418"
