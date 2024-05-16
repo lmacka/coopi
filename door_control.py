@@ -7,8 +7,7 @@ import time
 
 ############ CONFIG ###############
 statefile = 'static/state.json'
-actuateTime = 10
-# actuateTime = 90
+actuateTime = 90
 ###################################
 
 # Create a lock
@@ -56,8 +55,8 @@ def close_door():
 def delayed_open():
     if automationhat.is_automation_hat():
         automationhat.light.comms.on()
-    #     automationhat.relay.one.off()
-    #     automationhat.relay.two.on()
+        automationhat.relay.one.off()
+        automationhat.relay.two.on()
         time.sleep(actuateTime)
         automationhat.light.comms.off()
     # Release the lock
@@ -66,8 +65,8 @@ def delayed_open():
 def delayed_close():
     if automationhat.is_automation_hat():
         automationhat.light.comms.on()
-    #     automationhat.relay.one.on()
-    #     automationhat.relay.two.off()
+        automationhat.relay.one.on()
+        automationhat.relay.two.off()
         time.sleep(actuateTime)
         automationhat.light.comms.off()
     # Release the lock
