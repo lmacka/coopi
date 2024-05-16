@@ -239,6 +239,39 @@ url = "https://www.piwheels.org/simple"
 reference = "piwheels"
 
 [[package]]
+name = "gpiod"
+version = "2.1.3"
+description = "Python bindings for libgpiod"
+optional = false
+python-versions = ">=3.9.0"
+files = [
+    {file = "gpiod-2.1.3-cp311-cp311-linux_armv6l.whl", hash = "sha256:f586f4fc33674ab6a877def37e3c3c6c6f0201535da02ce2b63ac80e15bc778c"},
+    {file = "gpiod-2.1.3-cp311-cp311-linux_armv7l.whl", hash = "sha256:f586f4fc33674ab6a877def37e3c3c6c6f0201535da02ce2b63ac80e15bc778c"},
+    {file = "gpiod-2.1.3-cp39-cp39-linux_armv6l.whl", hash = "sha256:3a685404eee47fb30415acb00d8d4257aa366e04bcb451dd46bed9c2cff44184"},
+    {file = "gpiod-2.1.3-cp39-cp39-linux_armv7l.whl", hash = "sha256:3a685404eee47fb30415acb00d8d4257aa366e04bcb451dd46bed9c2cff44184"},
+]
+
+[package.source]
+type = "legacy"
+url = "https://www.piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
+name = "gpiodevice"
+version = "0.0.5"
+description = ""
+optional = false
+python-versions = "*"
+files = [
+    {file = "gpiodevice-0.0.5-py3-none-any.whl", hash = "sha256:b808250cd1d89379b69f98cc6442b6b098aa32604c3ed7fb194a39607ee35253"},
+]
+
+[package.source]
+type = "legacy"
+url = "https://www.piwheels.org/simple"
+reference = "piwheels"
+
+[[package]]
 name = "greenponik-bh1750"
 version = "0.0.7"
 description = "Read BH1750 through Python3 on raspberry pi"
@@ -414,4 +447,4 @@ reference = "piwheels"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9"
-content-hash = "fd42c4d7225640e5b1bd6718800f940388db784176832cab2a608acf48e5a418"
+content-hash = "35e7a884fa87219ec03bd97830d166a9e5a1491f6667bdd2fcf33000ee9c66b2"
