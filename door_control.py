@@ -54,26 +54,25 @@ def close_door():
         return "Door already closed"
 
 def delayed_open():
-    # if automationhat.is_automation_hat():
-    #     automationhat.light.power.write(1) # Turn on the power LED
-    #     automationhat.light.comms.on()
+    if automationhat.is_automation_hat():
+        automationhat.light.comms.on()
     #     automationhat.relay.one.off()
     #     automationhat.relay.two.on()
-    time.sleep(actuateTime)
-    #     automationhat.light.comms.off()
+        time.sleep(actuateTime)
+        automationhat.light.comms.off()
     # Release the lock
     lock.release()
 
 def delayed_close():
-    # if automationhat.is_automation_hat():
-    #     automationhat.light.power.write(1) # Turn on the power LED
-    #     automationhat.light.comms.on()
+    if automationhat.is_automation_hat():
+        automationhat.light.comms.on()
     #     automationhat.relay.one.on()
     #     automationhat.relay.two.off()
-    time.sleep(actuateTime)
-    #     automationhat.light.comms.off()
+        time.sleep(actuateTime)
+        automationhat.light.comms.off()
     # Release the lock
     lock.release()
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Script to open and close the door, for use with cron")
