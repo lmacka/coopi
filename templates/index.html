@@ -3,20 +3,42 @@
 <head>
     <link rel="stylesheet" type="text/css" href="static/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-    <img src="/video_feed" />
-    
+    <video id="video" autoplay></video>
+    <script>
+        if(Hls.isSupported()) {
+            var video = document.getElementById('video');
+            var hls = new Hls();
+            hls.loadSource('http://192.168.88.35:8888/cam/index.m3u8');
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                video.play();
+            });
+        }
+        // hls.js is not supported on platforms that do not have Media Source Extensions (MSE) enabled.
+        // When the browser has built-in HLS support (check using `canPlayType`), we can provide the HLS manifest (i.e. .m3u8 URL) directly to the video element through the `src` property.
+        // This is using the built-in support of the plain video element, without using hls.js.
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = 'http://192.168.88.35:8888/cam/index.m3u8';
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
+            });
+        }
+    </script>
+
     <div class="button-container">
         <button id="open-door" class="door-button">Open the door</button>
         <button id="close-door" class="door-button">Close the door</button>
-    </div>
-    <div id="output">Output here</div>
+        <div id="output">Door state displayed here</div>
+    </div> 
+
     <script>
         $(document).ready(function() {
             $.getJSON('static/state.json', function(data) {
                 var state = data.state; // Get the value of the state property
-                $('#output').html('<p>' + state + '</p>'); // Replace content
+                $('#output').html('<p>' + (state === 'closed' ? 'Door closed' : 'Door open') + '</p>');
 
                 // Disable the button correlating to the state
                 if (state === 'open') {

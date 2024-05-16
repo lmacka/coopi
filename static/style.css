@@ -5,40 +5,61 @@ body {
     background-repeat: repeat;
 }
 
+#video {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%; 
+    min-height: 100%;
+    z-index: -1;
+}
+
 .button-container {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-}
-.door-button {
-    margin-bottom: 10px;
+
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 200px; /* Adjust as needed */
+    height: 250px; /* Adjust as needed */
+    padding: 10px;
+    border: 1px solid #000;
+    background-color: #fff; /* Or any color you prefer */
 }
 
 .door-button {
     background-color: #4CAF50; /* Green */
     border: none;
     color: white;
-    padding: 15px 32px;
+    padding: 10px 20px; /* Smaller padding */
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 14px; /* Smaller font size */
     margin: 4px 2px;
     cursor: pointer;
+    margin-bottom: 10px;
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
-#output {
-    color: white;
-    background: black;
-    text-align: center;
-}
 #open-door {
     background-color: #4CAF50; /* Green */
 }
 
+#open-door:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
 #close-door {
     background-color: #f44336; /* Red */
+}
+
+#close-door:hover {
+    background-color: #da190b; /* Darker red on hover */
 }
 
 button:disabled {
@@ -46,4 +67,10 @@ button:disabled {
     color: #666666;
     cursor: not-allowed;
 }
-  
+#output {
+    color: darkgrey;
+    text-align: center;
+    margin-bottom: 10px;
+    display: inline-block;
+    font-size: 14px; /* Smaller font size */
+}
