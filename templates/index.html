@@ -69,7 +69,7 @@
         {% if request.args.get('message') %}
             <p>{{ request.args.get('message') }}</p>
         {% endif %}
-        {% if enable_rtsp_still %}
+        {% if ENABLE_RTSP_STILL %}
             <img src="{{ url_for('snapshot') }}" alt="RTSP Still" class="responsive-img">
         {% endif %}
         <div class="schedule-form">
