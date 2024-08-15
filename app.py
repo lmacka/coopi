@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, Response
 from door_state import is_door_open, is_door_state_running
 import subprocess
+import cv2
 
 app = Flask(__name__)
 
@@ -22,5 +23,18 @@ def close():
         subprocess.run(['python3', 'door_control.py', 'close'])
     return redirect(url_for('home'))
 
+@app.route('/snapshot')
+def snapshot():
+    if not ENABLE_RTSP_STILL:
+        return "RTSP still image is disabled", 403
+
+    cap = cv2.VideoCapture(RTSP_FEED_URL)
+    success, frame = cap.read()
+    cap.release()
+    if not success:
+        return "Failed to capture image", 500
+    ret, buffer = cv2.imencode('.jpg', frame)
+    return Response(buffer.tobytes(), mimetype='image/jpeg')
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8086)
+    app.run(host='127.0.0.1', port=8086)

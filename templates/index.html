@@ -6,56 +6,59 @@
     <title>Door Control</title>
     <style>
         body {
+            background-color: #2E2E2E; /* Dark background */
+            color: #D4D4D4; /* Light text color */
             font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 75%;
             text-align: center;
-            padding: 20px;
-            background-color: #f0f8ff;
-        }
-        h1 {
-            color: #333;
-        }
-        form {
-            margin: 20px 0;
         }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 30px 70px; /* Increase button size */
+            font-size: 18px; /* Increase font size */
             border: none;
             border-radius: 5px;
-            background-color: #4CAF50;
+            background-color: #8B4513; /* Earthy brown color */
             color: white;
             cursor: pointer;
+            margin: 10px;
         }
         button:disabled {
-            background-color: #ccc;
+            background-color: #555555; /* Greyed out color */
+            color: #AAAAAA; /* Light grey text */
             cursor: not-allowed;
         }
-        .ascii-art {
-            font-family: monospace;
-            white-space: pre;
-            margin-top: 20px;
+        .container {
+            width: 80%;
+            margin: 0 auto; /* Center the container */
+        }
+        .responsive-img {
+            max-width: 90%;
+            height: auto;
         }
     </style>
 </head>
 <body>
-    <h1>Coop Door Control</h1>
-    <form action="{{ url_for('open') }}" method="post">
-        <button type="submit" {% if door_open or door_state_running %}disabled{% endif %}>Open Door</button>
-    </form>
-    <form action="{{ url_for('close') }}" method="post">
-        <button type="submit" {% if not door_open or door_state_running %}disabled{% endif %}>Close Door</button>
-    </form>
-    {% if request.args.get('message') %}
-        <p>{{ request.args.get('message') }}</p>
-    {% endif %}
-    <div class="ascii-art">
-        <pre>
-         __
-       _( o)>
-       \_  )
-         \ \
-         ^^ ^^
-        </pre>
+    <div class="container">
+        <h1>O'Macks Coop Door</h1>
+        <form action="{{ url_for('open') }}" method="post">
+            <button type="submit" {% if door_open or door_state_running %}disabled{% endif %}>⬆️ Open Door</button>
+        </form>
+        <form action="{{ url_for('close') }}" method="post">
+            <button type="submit" {% if not door_open or door_state_running %}disabled{% endif %}>⬇️ Close Door</button>
+        </form>
+        {% if request.args.get('message') %}
+            <p>{{ request.args.get('message') }}</p>
+        {% endif %}
+        {% if enable_rtsp_still %}
+            <img src="{{ url_for('snapshot') }}" alt="RTSP Still" class="responsive-img">
+        {% endif %}
     </div>
 </body>
 </html>

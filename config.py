@@ -9,3 +9,9 @@ RELAY2_PIN = 15
 
 # Define the state file to store the door state
 statefile = 'state.json'
+
+# Enable or disable RTSP still image
+ENABLE_RTSP_STILL = True
+
+# RTSP feed URL
+RTSP_FEED_URL = 'rtsp://user:pass@192.168.0.123:554/stream1'
