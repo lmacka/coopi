@@ -4,13 +4,10 @@ import time
 import json
 import os
 import RPi.GPIO as GPIO
+from config import RELAY1_PIN, RELAY2_PIN, statefile, actuateTime
 
 # Set up GPIO mode to use Broadcom SOC channel numbers
 GPIO.setmode(GPIO.BCM)
-
-# Define GPIO pins for the relays
-RELAY1_PIN = 14
-RELAY2_PIN = 15
 
 # Set up the GPIO pins as outputs
 GPIO.setup(RELAY1_PIN, GPIO.OUT)
@@ -18,12 +15,6 @@ GPIO.setup(RELAY2_PIN, GPIO.OUT)
 
 # Define a threading lock to prevent concurrent operations
 lock = threading.Lock()
-
-# Define the actuation time in seconds
-actuateTime = 5
-
-# Define the state file to store the door state
-statefile = 'door_state.json'
 
 # Ensure the state file exists with a default state
 if not os.path.exists(statefile):
