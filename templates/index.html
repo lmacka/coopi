@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Door Control</title>
+</head>
+<body>
+    <h1>Door Control</h1>
+    <form action="{{ url_for('open') }}" method="post">
+        <button type="submit" {% if door_open or door_state_running %}disabled{% endif %}>Open Door</button>
+    </form>
+    <form action="{{ url_for('close') }}" method="post">
+        <button type="submit" {% if not door_open or door_state_running %}disabled{% endif %}>Close Door</button>
+    </form>
+    {% if request.args.get('message') %}
+        <p>{{ request.args.get('message') }}</p>
+    {% endif %}
+</body>
+</html>
