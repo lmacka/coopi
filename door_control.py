@@ -2,6 +2,7 @@ import sys
 import threading
 import time
 import json
+import os
 import RPi.GPIO as GPIO
 
 # Set up GPIO mode to use Broadcom SOC channel numbers

@@ -13,13 +13,13 @@ def home():
 @app.route('/open', methods=['POST'])
 def open():
     if not is_door_state_running():
-        result = open_door()
+        open_door()
     return redirect(url_for('home'))
 
 @app.route('/close', methods=['POST'])
 def close():
     if not is_door_state_running():
-        result = close_door()
+        close_door()
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
