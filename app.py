@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, Response, jsonify
+from flask import Flask, render_template, request, redirect, url_for, Response
 from door_state import is_door_open, is_door_state_running
 from door_control import open_door, close_door
-from config import schedulefile, RTSP_FEED_URL, ENABLE_RTSP_STILL
+from config import SCHEDULEFILE, RTSP_FEED_URL, ENABLE_RTSP_STILL
 import builtins
 import subprocess
 import logging
@@ -29,13 +29,13 @@ def check_schedule():
         time.sleep(60)  # Check every minute
 
 def load_schedule():
-    if os.path.exists(schedulefile):
-        with builtins.open(schedulefile) as f:
+    if os.path.exists(SCHEDULEFILE):
+        with builtins.open(SCHEDULEFILE) as f:
             return json.load(f)
     return {'open_time': '', 'close_time': '', 'open_enabled': False, 'close_enabled': False}
 
 def save_schedule(schedule):
-    with builtins.open(schedulefile, 'w') as f:
+    with builtins.open(SCHEDULEFILE, 'w') as f:
         json.dump(schedule, f, ensure_ascii=False)
 
 @app.route('/')

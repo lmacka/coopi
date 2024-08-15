@@ -4,7 +4,8 @@ import time
 import json
 import os
 import RPi.GPIO as GPIO
-from config import RELAY1_PIN, RELAY2_PIN, statefile, actuateTime
+from config import RELAY1_PIN, RELAY2_PIN, STATEFILE, ACTUATETIME
+from door_state import set_door_state_running
 
 # Set up GPIO mode to use Broadcom SOC channel numbers
 GPIO.setmode(GPIO.BCM)
@@ -17,8 +18,8 @@ GPIO.setup(RELAY2_PIN, GPIO.OUT)
 lock = threading.Lock()
 
 # Ensure the state file exists with a default state
-if not os.path.exists(statefile):
-    with open(statefile, 'w') as f:
+if not os.path.exists(STATEFILE):
+    with open(STATEFILE, 'w') as f:
         json.dump({'state': 'closed'}, f, ensure_ascii=False)
 
 def open_door():
@@ -31,20 +32,20 @@ def open_door():
         return "Another operation is in progress"
 
     # Read the current state of the door from the state file
-    with open(statefile) as json_file:
+    with open(STATEFILE) as json_file:
         json_data = json.load(json_file)
         doorstate = json_data['state']
 
     # If the door is closed, initiate the opening process
     if doorstate == 'closed':
         # Update the state file to reflect the door is opening
-        with open(statefile, 'w') as f:
+        with open(STATEFILE, 'w') as f:
             json.dump({'state': 'open'}, f, ensure_ascii=False)
 
         # Acquire the lock and start a new thread to handle the door opening
         lock.acquire()
         threading.Thread(target=delayed_open).start()
-        return 'Opening door. This will take ' + str(actuateTime) + ' seconds'
+        return 'Opening door. This will take ' + str(ACTUATETIME) + ' seconds'
     else:
         return "Door already open"
 
@@ -58,20 +59,20 @@ def close_door():
         return "Another operation is in progress"
 
     # Read the current state of the door from the state file
-    with open(statefile) as json_file:
+    with open(STATEFILE) as json_file:
         json_data = json.load(json_file)
         doorstate = json_data['state']
 
     # If the door is open, initiate the closing process
     if doorstate == 'open':
         # Update the state file to reflect the door is closing
-        with open(statefile, 'w') as f:
+        with open(STATEFILE, 'w') as f:
             json.dump({'state': 'closed'}, f, ensure_ascii=False)
 
         # Acquire the lock and start a new thread to handle the door closing
         lock.acquire()
         threading.Thread(target=delayed_close).start()
-        return 'Closing door. This will take ' + str(actuateTime) + ' seconds'
+        return 'Closing door. This will take ' + str(ACTUATETIME) + ' seconds'
     else:
         return "Door already closed"
 
@@ -80,26 +81,30 @@ def delayed_open():
     Function to handle the delayed opening of the door.
     Sets the GPIO pins to open the door for the specified actuation time.
     """
+    set_door_state_running(True)
     start_time = time.time()
-    while time.time() - start_time < actuateTime:
+    while time.time() - start_time < ACTUATETIME:
         GPIO.output(RELAY1_PIN, GPIO.LOW)
         GPIO.output(RELAY2_PIN, GPIO.HIGH)
         time.sleep(0.1)  # Adjust the sleep time as needed
     # Release the lock after the operation is complete
     lock.release()
+    set_door_state_running(False)
 
 def delayed_close():
     """
     Function to handle the delayed closing of the door.
     Sets the GPIO pins to close the door for the specified actuation time.
     """
+    set_door_state_running(True)
     start_time = time.time()
-    while time.time() - start_time < actuateTime:
+    while time.time() - start_time < ACTUATETIME:
         GPIO.output(RELAY1_PIN, GPIO.HIGH)
         GPIO.output(RELAY2_PIN, GPIO.LOW)
         time.sleep(0.1)  # Adjust the sleep time as needed
     # Release the lock after the operation is complete
     lock.release()
+    set_door_state_running(False)
 
 if __name__ == "__main__":
     # Ensure the script is called with the correct number of arguments
