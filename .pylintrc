@@ -1,0 +1,25 @@
+[MASTER]
+ignore-patterns=__init__.py
+
+[MESSAGES CONTROL]
+disable=
+    C0114,  # Missing module docstring
+    C0116,  # Missing function or method docstring
+    R0903,  # Too few public methods
+
+[FORMAT]
+max-line-length=100
+
+[DESIGN]
+max-args=5
+max-locals=15
+max-returns=6
+max-branches=12
+max-statements=50
+max-parents=7
+max-attributes=10
+min-public-methods=2
+max-public-methods=20
+
+[TYPECHECK]
+ignored-modules=flask, cv2, RPi.GPIO
