@@ -1,18 +1,16 @@
-import os
 import json
-import psutil
+import os
 from config import statefile
 
 def is_door_open():
-    try:
-        with open(statefile, 'r') as file:
-            state = json.load(file)
-            return state.get('door_open', False)
-    except (FileNotFoundError, json.JSONDecodeError):
+    if not os.path.exists(statefile):
         return False
 
+    with open(statefile) as json_file:
+        json_data = json.load(json_file)
+        return json_data.get('state') == 'open'
+
 def is_door_state_running():
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-        if 'door_control.py' in proc.info['cmdline']:
-            return True
+    # This function should be implemented based on how you track the running state
+    # For example, you might have a separate state in the state file or a global variable
     return False

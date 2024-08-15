@@ -1,7 +1,7 @@
 # Configuration file for constants
 
 # Define the actuation time in seconds
-actuateTime = 5
+actuateTime = 90
 
 # Define GPIO pins for the relays
 RELAY1_PIN = 14

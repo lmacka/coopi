@@ -4,9 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Door Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f8ff;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .ascii-art {
+            font-family: monospace;
+            white-space: pre;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Door Control</h1>
+    <h1>Coop Door Control</h1>
     <form action="{{ url_for('open') }}" method="post">
         <button type="submit" {% if door_open or door_state_running %}disabled{% endif %}>Open Door</button>
     </form>
@@ -16,5 +48,14 @@
     {% if request.args.get('message') %}
         <p>{{ request.args.get('message') }}</p>
     {% endif %}
+    <div class="ascii-art">
+        <pre>
+         __
+       _( o)>
+       \_  )
+         \ \
+         ^^ ^^
+        </pre>
+    </div>
 </body>
 </html>

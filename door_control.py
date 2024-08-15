@@ -111,10 +111,16 @@ if __name__ == "__main__":
 
     command = sys.argv[1]
     try:
-        if command == 'open':
-            print(open_door())
-        elif command == 'close':
-            print(close_door())
+        if command in ['open', 'close']:
+            # Setup GPIO only when a valid command is received
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(RELAY1_PIN, GPIO.OUT)
+            GPIO.setup(RELAY2_PIN, GPIO.OUT)
+
+            if command == 'open':
+                print(open_door())
+            elif command == 'close':
+                print(close_door())
         else:
             print(f"Invalid command: {command}")
             sys.exit(1)
