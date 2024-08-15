@@ -15,10 +15,6 @@
             height: 100vh;
             margin: 0;
         }
-        .container {
-            width: 75%;
-            text-align: center;
-        }
         button {
             padding: 30px 70px; /* Increase button size */
             font-size: 18px; /* Increase font size */
@@ -36,11 +32,28 @@
         }
         .container {
             width: 80%;
+            text-align: center;
             margin: 0 auto; /* Center the container */
+            margin-top: 0; /* Align the container at the top */
         }
         .responsive-img {
             max-width: 90%;
             height: auto;
+        }
+        .schedule-form label {
+        display: block;
+        margin: 10px 0 5px;
+        }
+        .schedule-form input[type="time"],
+        .schedule-form input[type="checkbox"] {
+            font-size: 14px;
+            padding: 5px;
+            margin: 5px 0;
+        }
+        .schedule-form button {
+            font-size: 14px;
+            padding: 5px 10px;
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -59,6 +72,24 @@
         {% if enable_rtsp_still %}
             <img src="{{ url_for('snapshot') }}" alt="RTSP Still" class="responsive-img">
         {% endif %}
+        <div class="schedule-form">
+            <h2>Schedule Settings</h2>
+            <form action="{{ url_for('schedule') }}" method="post">
+                <label for="open_time">Open Time:</label>
+                <input type="time" id="open_time" name="open_time" value="{{ schedule.open_time }}">
+                <label for="open_enabled">
+                    <input type="checkbox" id="open_enabled" name="open_enabled" {% if schedule.open_enabled %}checked{% endif %}>
+                    Enable Open Schedule
+                </label>
+                <label for="close_time">Close Time:</label>
+                <input type="time" id="close_time" name="close_time" value="{{ schedule.close_time }}">
+                <label for="close_enabled">
+                    <input type="checkbox" id="close_enabled" name="close_enabled" {% if schedule.close_enabled %}checked{% endif %}>
+                    Enable Close Schedule
+                </label>
+                <button type="submit">Save Schedule</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>
