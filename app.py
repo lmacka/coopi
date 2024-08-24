@@ -5,11 +5,10 @@ import threading
 import json
 import os
 import time
-import cv2
-from flask import Flask, render_template, request, redirect, url_for, Response
+from flask import Flask, render_template, request, redirect, url_for
 from door_state import is_door_open, is_door_state_running
 from door_control import open_door, close_door
-from config import SCHEDULEFILE, RTSP_FEED_URL, ENABLE_RTSP_STILL
+from config import SCHEDULEFILE, ACTUATETIME
 
 # Configure logging
 logging.basicConfig(
@@ -59,8 +58,8 @@ def home():
         door_open=door_open,
         door_state_running=door_state_running,
         schedule=schedule_data,
+        actuate_time=ACTUATETIME
     )
-
 
 @app.route("/open", methods=["POST"])
 def open():
@@ -74,21 +73,6 @@ def close():
     if not is_door_state_running():
         subprocess.run(["python3", "door_control.py", "close"], check=True)
     return redirect(url_for("home"))
-
-
-@app.route("/snapshot")
-def snapshot():
-    if not ENABLE_RTSP_STILL:
-        return "RTSP still image is disabled", 403
-
-    cap = cv2.VideoCapture(RTSP_FEED_URL)
-    success, frame = cap.read()
-    cap.release()
-    if not success:
-        return "Failed to capture image", 500
-    ret, buffer = cv2.imencode(".jpg", frame)
-    return Response(buffer.tobytes(), mimetype="image/jpeg")
-
 
 @app.route("/schedule", methods=["POST"])
 def schedule():
