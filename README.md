@@ -14,18 +14,15 @@ This is a simple door controller running on a Pi Zero to allow ad-hoc and schedu
  - An old plastic box
  - A coop with chickens
 
-## Controller
+
+![Circuit design](static/img/sketch.png)
+
+![Finished installation](static/img/door.jpg)
 ![Controller](static/img/controller.jpg)
 
-## Finished Installation
-![Finished installation](static/img/door.jpg)
-
-## UI Display on Phone
-![UI](static/img/screenshot.png)
 
 
-## Building the Controller
-Documentation to come soon...
+
 
 ## Quickstart
 To get started with the door controller software, follow these steps:
@@ -36,9 +33,9 @@ To get started with the door controller software, follow these steps:
     sudo apt-get install nginx python3-flask python3-rpi.gpio
     ```
 
-2. Next, navigate to the `extras/` directory in your project repository. This directory contains the configuration files needed for the door controller.  You may need to modify these files to suit your environment.
+2. Next, navigate to the `extras/` directory. You may need to modify these files to suit your environment.
 
-3. Copy the configuration files to the appropriate locations. For example, you can use the following commands to copy the files:
+3. Copy the system configuration files to the appropriate locations. For example, you can use the following commands to copy the files:
 
     ```bash
     sudo cp extras/nginx.conf /etc/nginx/sites-enabled/default
@@ -58,6 +55,6 @@ To get started with the door controller software, follow these steps:
     sudo systemctl enable coopi
     sudo systemctl start coopi
     ```
-
-
 6. Browse to http://your-ip to access the door controller web UI.
+![UI](static/img/screenshot.png)
+
