@@ -17,9 +17,10 @@ This is a simple door controller running on a Pi Zero to allow ad-hoc and schedu
 
 ![Circuit design](static/img/sketch.png)
 
-![Finished installation](static/img/door.jpg)
-![Controller](static/img/controller.jpg)
-
+<p align="center">
+  <a href="static/img/door.jpg"><img src="static/img/door.jpg" alt="Finished installation" width="45%"/></a>
+  <a href="static/img/controller.jpg"><img src="static/img/controller.jpg" alt="Controller" width="45%"/></a>
+</p>
 
 
 
@@ -56,5 +57,6 @@ To get started with the door controller software, follow these steps:
     sudo systemctl start coopi
     ```
 6. Browse to http://your-ip to access the door controller web UI.
-![UI](static/img/screenshot.png)
-
+<p align="center">
+  <img src="static/img/screenshot.png" alt="UI" style="max-width: 400px; width: 100%;"/>
+</p>
