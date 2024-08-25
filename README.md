@@ -57,6 +57,7 @@ To get started with the door controller software, follow these steps:
     sudo systemctl start coopi
     ```
 6. Browse to http://your-ip to access the door controller web UI.
+
 <p align="center">
-  <img src="static/img/screenshot.png" alt="UI" style="max-width: 400px; width: 100%;"/>
+  <img src="static/img/screenshot.png" alt="UI" style="width: 350px;"/>
 </p>
