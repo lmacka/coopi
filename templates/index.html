@@ -36,9 +36,8 @@
         margin: 0 auto; /* Center the container */
         margin-top: 0; /* Align the container at the top */
       }
-      .responsive-img {
-        max-width: 90%;
-        height: auto;
+      .collapsed {
+        display: none;
       }
       .schedule-form label {
         display: block;
@@ -50,7 +49,63 @@
         font-size: 18px;
       }
     </style>
-  </head>
+
+    <script>
+      document.getElementById('open-door-form').addEventListener('submit', function(event) {
+          event.preventDefault();
+          handleDoorAction('open');
+      });
+
+      document.getElementById('close-door-form').addEventListener('submit', function(event) {
+          event.preventDefault();
+          handleDoorAction('close');
+      });
+
+      function handleDoorAction(action) {
+          const loadingElement = document.getElementById('loading');
+          loadingElement.style.display = 'block';
+
+          fetch(`/${action}`, {
+              method: 'POST'
+          })
+      };
+
+      function toggleScheduleForm() {
+          const form = document.getElementById('scheduleForm');
+          const chevron = document.getElementById('chevron');
+          if (form.classList.contains('collapsed')) {
+              form.classList.remove('collapsed');
+              chevron.textContent = '⌃';
+          } else {
+              form.classList.add('collapsed');
+              chevron.textContent = '⌄';
+          }
+      }
+
+      // Get the countdown time from the template variable
+      var ACTUATETIME = "{{ actuate_time }}";
+
+      function startPercentageCountdown(duration, display) {
+          var timer = duration;
+          var countdownInterval = setInterval(function () {
+              var percentage = Math.floor(((duration - timer) / duration) * 100);
+              display.textContent = percentage + "% complete";
+
+              if (--timer < 0) {
+                  clearInterval(countdownInterval);
+                  display.textContent = "100% complete";
+                  location.reload();
+              }
+          }, 1000);
+      }
+
+      window.onload = function () {
+          var percentageElement = document.getElementById('percentage');
+          startPercentageCountdown(ACTUATETIME, percentageElement);
+      };
+    </script>
+
+</head>
   <body>
     <div class="container">
       <form id="open-door-form" action="{{ url_for('open') }}" method="post">
@@ -91,97 +146,55 @@
         <p id="percentage">complete</p>
       </div>
       <div class="schedule-form">
-        <h2>Schedule Settings</h2>
-        <form action="{{ url_for('schedule') }}" method="post">
-          <label for="open_time">Open Time:</label>
-          <input
-            type="time"
-            id="open_time"
-            name="open_time"
-            value="{{ schedule.open_time }}"
-          />
-          <label for="open_enabled">
+        <h2 onclick="toggleScheduleForm()" style="cursor: pointer;">
+            Schedule Settings <span id="chevron">⌄</span>
+        </h2>
+        <form id="scheduleForm" class="collapsed" action="{{ url_for('schedule') }}" method="post">
+            <label for="open_time">Open Time:</label>
             <input
-              type="checkbox"
-              id="open_enabled"
-              name="open_enabled"
-              {%
-              if
-              schedule.open_enabled
-              %}checked{%
-              endif
-              %}
+                type="time"
+                id="open_time"
+                name="open_time"
+                value="{{ schedule.open_time }}"
             />
-            Enable Open Schedule
-          </label>
-          <label for="close_time">Close Time:</label>
-          <input
-            type="time"
-            id="close_time"
-            name="close_time"
-            value="{{ schedule.close_time }}"
-          />
-          <label for="close_enabled">
+            <label for="open_enabled">
+                <input
+                    type="checkbox"
+                    id="open_enabled"
+                    name="open_enabled"
+                    {%
+                    if
+                    schedule.open_enabled
+                    %}checked{%
+                    endif
+                    %}
+                />
+                Enable Open Schedule
+            </label>
+            <label for="close_time">Close Time:</label>
             <input
-              type="checkbox"
-              id="close_enabled"
-              name="close_enabled"
-              {%
-              if
-              schedule.close_enabled
-              %}checked{%
-              endif
-              %}
+                type="time"
+                id="close_time"
+                name="close_time"
+                value="{{ schedule.close_time }}"
             />
-            Enable Close Schedule
-          </label>
-          <button type="submit">Save Schedule</button>
+            <label for="close_enabled">
+                <input
+                    type="checkbox"
+                    id="close_enabled"
+                    name="close_enabled"
+                    {%
+                    if
+                    schedule.close_enabled
+                    %}checked{%
+                    endif
+                    %}
+                />
+                Enable Close Schedule
+            </label>
+            <button type="submit">Save Schedule</button>
         </form>
-      </div>
     </div>
-    <script>
-        document.getElementById('open-door-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            handleDoorAction('open');
-        });
-
-        document.getElementById('close-door-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            handleDoorAction('close');
-        });
-
-        function handleDoorAction(action) {
-            const loadingElement = document.getElementById('loading');
-            loadingElement.style.display = 'block';
-
-            fetch(`/${action}`, {
-                method: 'POST'
-            })
-        };
-    </script>
-
-    <script>
-        // Get the countdown time from the template variable
-        var ACTUATETIME = "{{ actuate_time }}";
-
-        function startPercentageCountdown(duration, display) {
-            var timer = duration;
-            var countdownInterval = setInterval(function () {
-                var percentage = Math.floor(((duration - timer) / duration) * 100);
-                display.textContent = percentage + "% complete";
-
-                if (--timer < 0) {
-                    clearInterval(countdownInterval);
-                    display.textContent = "100% complete";
-                    location.reload();
-                }
-            }, 1000);
-        }
-
-        window.onload = function () {
-            var percentageElement = document.getElementById('percentage');
-            startPercentageCountdown(ACTUATETIME, percentageElement);
-        };
-    </script>
+   </div>
 </body>
 </html>
