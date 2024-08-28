@@ -109,35 +109,20 @@
   <body>
     <div class="container">
       <form id="open-door-form" action="{{ url_for('open') }}" method="post">
-        <button
-          type="submit"
-          {%
-          if
-          door_open
-          or
-          door_state_running
-          %}disabled{%
-          endif
-          %}
-        >
-          ⬆️ Open Door
-        </button>
+          <button
+              type="submit"
+              {% if door_open or door_state_running %}disabled{% endif %}
+          >
+              ⬆️ Open Door
+          </button>
       </form>
       <form id="close-door-form" action="{{ url_for('close') }}" method="post">
-        <button
-          type="submit"
-          {%
-          if
-          not
-          door_open
-          or
-          door_state_running
-          %}disabled{%
-          endif
-          %}
-        >
-          ⬇️ Close Door
-        </button>
+          <button
+              type="submit"
+              {% if door_closed or door_state_running %}disabled{% endif %}
+          >
+              ⬇️ Close Door
+          </button>
       </form>
       <div class="loading" id="loading">
         Processing... {% if request.args.get('message') %}

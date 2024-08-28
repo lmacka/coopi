@@ -1,5 +1,9 @@
 # A Raspberry Pi in a Chicken Coop
 
+![GHCR Build](https://ghcr-badge.egpl.dev/lmacka/coopi/latest_tag)
+![GHCR Build](https://ghcr-badge.egpl.dev/lmacka/coopi/tag?tag=latest)
+![GHCR Build](https://ghcr-badge.egpl.dev/lmacka/coopi/size)
+
 This is a simple door controller running on a Pi Zero to allow ad-hoc and scheduling of coop door operation.
 
 ![The Exodus](static/img/the_exodus.gif)

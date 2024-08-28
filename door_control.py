@@ -5,7 +5,7 @@ import json
 import os
 from RPi import GPIO
 from .config import RELAY1_PIN, RELAY2_PIN, STATEFILE, ACTUATETIME
-from .door_state import set_door_state_running
+from .door_state import set_door_state_running, is_door_state_running
 
 # Set up GPIO mode to use Broadcom SOC channel numbers
 GPIO.setmode(GPIO.BCM)
@@ -23,13 +23,14 @@ if not os.path.exists(STATEFILE):
         json.dump({"state": "closed"}, initial_state_file, ensure_ascii=False)
 
 
+
 def open_door():
     """
     Function to open the door.
     Checks the current state of the door and initiates the opening process if the door is closed.
     """
     # Check if another operation is in progress
-    if lock.locked():
+    if lock.locked() or is_door_state_running():
         return "Another operation is in progress"
 
     # Read the current state of the door from the state file
@@ -45,10 +46,10 @@ def open_door():
 
         # Acquire the lock and start a new thread to handle the door opening
         lock.acquire()
+        set_door_state_running(True)
         threading.Thread(target=delayed_open).start()
         return "Opening door. This will take " + str(ACTUATETIME) + " seconds"
     return "Door already open"
-
 
 def close_door():
     """
@@ -56,7 +57,7 @@ def close_door():
     Checks the current state of the door and initiates the closing process if the door is open.
     """
     # Check if another operation is in progress
-    if lock.locked():
+    if lock.locked() or is_door_state_running():
         return "Another operation is in progress"
 
     # Read the current state of the door from the state file
@@ -72,6 +73,7 @@ def close_door():
 
         # Acquire the lock and start a new thread to handle the door closing
         lock.acquire()
+        set_door_state_running(True)
         threading.Thread(target=delayed_close).start()
         return "Closing door. This will take " + str(ACTUATETIME) + " seconds"
     return "Door already closed"
@@ -91,7 +93,6 @@ def delayed_open():
     # Release the lock after the operation is complete
     lock.release()
     set_door_state_running(False)
-
 
 def delayed_close():
     """
