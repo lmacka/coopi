@@ -1,0 +1,14 @@
+# Ignore the following files and directories
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.git
+.github
+.gitignore
+.pylintrc
+README.md
+LICENSE
+*.json
+extras/
+static/
