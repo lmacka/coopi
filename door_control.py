@@ -4,8 +4,8 @@ import time
 import json
 import os
 from RPi import GPIO
-from config import RELAY1_PIN, RELAY2_PIN, STATEFILE, ACTUATETIME
-from door_state import set_door_state_running
+from .config import RELAY1_PIN, RELAY2_PIN, STATEFILE, ACTUATETIME
+from .door_state import set_door_state_running
 
 # Set up GPIO mode to use Broadcom SOC channel numbers
 GPIO.setmode(GPIO.BCM)
@@ -19,8 +19,8 @@ lock = threading.Lock()
 
 # Ensure the state file exists with a default state
 if not os.path.exists(STATEFILE):
-    with open(STATEFILE, "w", encoding='utf-8') as state_file:
-        json.dump({"state": "closed"}, state_file, ensure_ascii=False)
+    with open(STATEFILE, "w", encoding='utf-8') as initial_state_file:
+        json.dump({"state": "closed"}, initial_state_file, ensure_ascii=False)
 
 
 def open_door():

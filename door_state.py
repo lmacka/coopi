@@ -1,6 +1,6 @@
 import json
 import os
-from config import STATEFILE
+from .config import STATEFILE
 
 # Global variable to track the running state
 DOOR_STATE_RUNNING = False

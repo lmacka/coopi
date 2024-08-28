@@ -6,9 +6,9 @@ import json
 import os
 import time
 from flask import Flask, render_template, request, redirect, url_for
-from door_state import is_door_open, is_door_state_running
-from door_control import open_door, close_door
-from config import SCHEDULEFILE, ACTUATETIME
+from .door_state import is_door_open, is_door_state_running
+from .door_control import open_door, close_door
+from .config import SCHEDULEFILE, ACTUATETIME
 
 # Configure logging
 logging.basicConfig(
@@ -62,14 +62,14 @@ def home():
     )
 
 @app.route("/open", methods=["POST"])
-def open():
+def open_door_route():
     if not is_door_state_running():
         subprocess.run(["python3", "door_control.py", "open"], check=True)
     return redirect(url_for("home"))
 
 
 @app.route("/close", methods=["POST"])
-def close():
+def close_door_route():
     if not is_door_state_running():
         subprocess.run(["python3", "door_control.py", "close"], check=True)
     return redirect(url_for("home"))
