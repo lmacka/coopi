@@ -1,5 +1,4 @@
-import builtins
-import subprocess
+import signal
 import logging
 import threading
 import json
@@ -125,29 +124,48 @@ def schedule():
     save_schedule(schedule_data)
     return redirect(url_for("home"))
 
+cleanup_done = False
+
+def cleanup():
+    global cleanup_done
+    if not cleanup_done:
+        print("Cleaning up GPIO and other resources...")
+        GPIO.cleanup()
+        # Perform any other necessary cleanup here
+        cleanup_done = True
+
+def signal_handler(sig, frame):
+    cleanup()
+    sys.exit(0)
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        command = sys.argv[1]
-        try:
-            if command == "open":
-                print(open_door())
-            elif command == "close":
-                print(close_door())
-            else:
-                print(f"Invalid command: {command}")
-                sys.exit(1)
-        except KeyboardInterrupt:
-            pass
-        finally:
-            for thread in threading.enumerate():
-                if thread is not threading.main_thread():
-                    thread.join()
-            GPIO.cleanup()
-    else:
-        # Start the schedule checking thread
-        schedule_thread = threading.Thread(target=check_schedule)
-        schedule_thread.daemon = True
-        schedule_thread.start()
+    # Register the signal handler for SIGINT
+    signal.signal(signal.SIGINT, signal_handler)
 
-        app.run(host="127.0.0.1", port=8086)
+    try:
+        if len(sys.argv) == 2:
+            command = sys.argv[1]
+            try:
+                if command == "open":
+                    print(open_door())
+                elif command == "close":
+                    print(close_door())
+                else:
+                    print(f"Invalid command: {command}")
+                    sys.exit(1)
+            except KeyboardInterrupt:
+                pass
+            finally:
+                for thread in threading.enumerate():
+                    if thread is not threading.main_thread():
+                        thread.join()
+                cleanup()
+        else:
+            # Start the schedule checking thread
+            schedule_thread = threading.Thread(target=check_schedule)
+            schedule_thread.daemon = True
+            schedule_thread.start()
+
+            app.run(host="127.0.0.1", port=8086)
+    finally:
+        cleanup()
