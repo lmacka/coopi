@@ -6,9 +6,9 @@ import json
 import os
 import time
 from flask import Flask, render_template, request, redirect, url_for
-from .door_state import is_door_open, is_door_state_running
-from .door_control import open_door, close_door
-from .config import SCHEDULEFILE, ACTUATETIME
+from coopi.door_state import is_door_open, is_door_state_running
+from coopi.door_control import open_door, close_door
+from coopi.config import SCHEDULEFILE, ACTUATETIME
 
 # Configure logging
 logging.basicConfig(

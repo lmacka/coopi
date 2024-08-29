@@ -51,25 +51,6 @@
     </style>
 
     <script>
-      document.getElementById('open-door-form').addEventListener('submit', function(event) {
-          event.preventDefault();
-          handleDoorAction('open');
-      });
-
-      document.getElementById('close-door-form').addEventListener('submit', function(event) {
-          event.preventDefault();
-          handleDoorAction('close');
-      });
-
-      function handleDoorAction(action) {
-          const loadingElement = document.getElementById('loading');
-          loadingElement.style.display = 'block';
-
-          fetch(`/${action}`, {
-              method: 'POST'
-          })
-      };
-
       function toggleScheduleForm() {
           const form = document.getElementById('scheduleForm');
           const chevron = document.getElementById('chevron');
@@ -85,6 +66,7 @@
       // Get the countdown time from the template variable
       var ACTUATETIME = "{{ actuate_time }}";
 
+      // Function to start the percentage countdown
       function startPercentageCountdown(duration, display) {
           var timer = duration;
           var countdownInterval = setInterval(function () {
@@ -99,33 +81,19 @@
           }, 1000);
       }
 
-      window.onload = function () {
-          var percentageElement = document.getElementById('percentage');
-          startPercentageCountdown(ACTUATETIME, percentageElement);
-      };
     </script>
 
 </head>
   <body>
     <div class="container">
-      <form id="open-door-form" action="{{ url_for('open') }}" method="post">
-          <button
-              type="submit"
-              {% if door_open or door_state_running %}disabled{% endif %}
-          >
-              ⬆️ Open Door
-          </button>
+      <form id="open-door-form" action="{{ url_for('open_door_route') }}" method="post">
+          <button type="submit" {% if doorstate == 'open' %}disabled{% endif %}> ⬆️ Open Door</button>
       </form>
-      <form id="close-door-form" action="{{ url_for('close') }}" method="post">
-          <button
-              type="submit"
-              {% if door_closed or door_state_running %}disabled{% endif %}
-          >
-              ⬇️ Close Door
-          </button>
+      <form id="close-door-form" action="{{ url_for('close_door_route') }}" method="post">
+        <button type="submit" {% if doorstate == 'closed' %}disabled{% endif %}> ⬇️ Close Door</button>
       </form>
       <div class="loading" id="loading">
-        Processing... {% if request.args.get('message') %}
+        Working... {% if request.args.get('message') %}
         <p>{{ request.args.get('message') }}</p>
         {% endif %}
         <p id="percentage">complete</p>
@@ -181,5 +149,6 @@
         </form>
     </div>
    </div>
+
 </body>
 </html>

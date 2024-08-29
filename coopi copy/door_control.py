@@ -3,16 +3,37 @@ import threading
 import time
 import json
 import os
-from RPi import GPIO
+import RPi.GPIO as GPIO
 from .config import RELAY1_PIN, RELAY2_PIN, STATEFILE, ACTUATETIME
 from .door_state import set_door_state_running, is_door_state_running
 
-# Set up GPIO mode to use Broadcom SOC channel numbers
-GPIO.setmode(GPIO.BCM)
+# Initialize GPIO pins
+def initialize_gpio():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(RELAY1_PIN, GPIO.OUT)
+    GPIO.setup(RELAY2_PIN, GPIO.OUT)
+    GPIO.output(RELAY1_PIN, GPIO.LOW)
+    GPIO.output(RELAY2_PIN, GPIO.LOW)
 
-# Set up the GPIO pins as outputs
-GPIO.setup(RELAY1_PIN, GPIO.OUT)
-GPIO.setup(RELAY2_PIN, GPIO.OUT)
+# Function to read the initial state from the state file
+def read_initial_state():
+    with open(STATEFILE, 'r') as f:
+        state = json.load(f)
+    return state['state']
+
+# Function to set the GPIO pins based on the initial state
+def set_initial_state():
+    state = read_initial_state()
+    if state == "open":
+        GPIO.output(RELAY1_PIN, GPIO.LOW)
+        GPIO.output(RELAY2_PIN, GPIO.HIGH)
+    else:
+        GPIO.output(RELAY1_PIN, GPIO.HIGH)
+        GPIO.output(RELAY2_PIN, GPIO.LOW)
+
+# Call the initialization functions when the module is loaded
+initialize_gpio()
+set_initial_state()
 
 # Define a threading lock to prevent concurrent operations
 lock = threading.Lock()
