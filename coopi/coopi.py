@@ -5,7 +5,7 @@ import json
 import os
 import sys
 import time
-from RPi.GPIO import GPIO
+import RPi.GPIO
 from flask import Flask, render_template, request, redirect, url_for
 
 # Configuration
@@ -16,13 +16,13 @@ STATEFILE = "state.json"
 SCHEDULEFILE = "schedule.json"
 
 # Initialize GPIO pins
-def initialize_gpio():
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(RELAY1_PIN, GPIO.OUT)
-    GPIO.setup(RELAY2_PIN, GPIO.OUT)
+def init_gpio():
+    RPi.GPIO.setmode(RPi.GPIO.BCM)
+    RPi.GPIO.setup(RELAY1_PIN, RPi.GPIO.OUT)
+    RPi.GPIO.setup(RELAY2_PIN, RPi.GPIO.OUT)
 
 # Call the initialization functions when the module is loaded
-initialize_gpio()
+init_gpio()
 
 # Define a threading lock to prevent concurrent operations
 lock = threading.Lock()
@@ -43,25 +43,25 @@ if not os.path.exists(STATEFILE):
 
 def open_door():
     with lock:
-        GPIO.output(RELAY1_PIN, GPIO.LOW)
-        GPIO.output(RELAY2_PIN, GPIO.HIGH)
+        RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.LOW)
+        RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
         time.sleep(ACTUATETIME)
         with open(STATEFILE, "w", encoding='utf-8') as state_file:
             json.dump({"state": "open"}, state_file, ensure_ascii=False)
         # Reset both relays to NC state
-        GPIO.output(RELAY1_PIN, GPIO.HIGH)
-        GPIO.output(RELAY2_PIN, GPIO.HIGH)
+        RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
+        RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
 
 def close_door():
     with lock:
-        GPIO.output(RELAY1_PIN, GPIO.HIGH)
-        GPIO.output(RELAY2_PIN, GPIO.LOW)
+        RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
+        RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.LOW)
         time.sleep(ACTUATETIME)
         with open(STATEFILE, "w", encoding='utf-8') as state_file:
             json.dump({"state": "closed"}, state_file, ensure_ascii=False)
         # Reset both relays to NC state
-        GPIO.output(RELAY1_PIN, GPIO.HIGH)
-        GPIO.output(RELAY2_PIN, GPIO.HIGH)
+        RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
+        RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
         return "Door closed"
 
 
@@ -127,7 +127,7 @@ def schedule():
 def cleanup():
     if not getattr(cleanup, "done", False):
         print("Cleaning up GPIO and other resources...")
-        GPIO.cleanup()
+        RPi.GPIO.cleanup()
         # Perform any other necessary cleanup here
         cleanup.done = True
 
