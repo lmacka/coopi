@@ -12,8 +12,8 @@ from flask import Flask, render_template, request, redirect, url_for
 ACTUATETIME = 90
 RELAY1_PIN = 14
 RELAY2_PIN = 15
-STATEFILE = "state.json"
-SCHEDULEFILE = "schedule.json"
+STATEFILE = "var/state.json"
+SCHEDULEFILE = "var/schedule.json"
 
 # Initialize GPIO pins
 def init_gpio():
@@ -40,6 +40,19 @@ if not os.path.exists(STATEFILE):
     with open(STATEFILE, "w", encoding='utf-8') as initial_state_file:
         json.dump({"state": "closed"}, initial_state_file, ensure_ascii=False)
 
+# Ensure the schedule file exists with a default schedule
+if not os.path.exists(SCHEDULEFILE):
+    with open(SCHEDULEFILE, "w", encoding='utf-8') as initial_schedule_file:
+        json.dump(
+            {
+                "open_enabled": False,
+                "open_time": "06:00",
+                "close_enabled": False,
+                "close_time": "18:00"
+            },
+            initial_schedule_file,
+            ensure_ascii=False
+        )
 
 def open_door():
     with lock:
