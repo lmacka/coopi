@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: ghcr-build
 
 on:
   push:
@@ -27,10 +27,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push GHCR image
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/coopi:latest
-          platforms: linux/arm/v6
+          platforms: linux/arm/v6,linux/arm/v7,linux/arm64
