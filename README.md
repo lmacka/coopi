@@ -1,14 +1,15 @@
 # A Raspberry Pi in a Chicken Coop
 
-![Build Status](https://github.com/lmacka/coopi/actions/workflows/docker-build.yml/badge.svg)
+![Python Version](https://img.shields.io/badge/python-3.11-blue)
+![Dependencies](https://img.shields.io/librariesio/github/lmacka/coopi)
 ![Pylint Status](https://github.com/lmacka/coopi/actions/workflows/pylint.yml/badge.svg)
+
+![GHCR Build Status](https://github.com/lmacka/coopi/actions/workflows/ghcr-build.yml/badge.svg)
+![Docker Build Status](https://img.shields.io/docker/cloud/build/lmacka/coopi)
 ![Docker Pulls](https://img.shields.io/docker/pulls/lmacka/coopi)
 ![Docker Stars](https://img.shields.io/docker/stars/lmacka/coopi)
 ![Docker Image Size](https://img.shields.io/docker/image-size/lmacka/coopi/latest)
-![Docker Build Status](https://img.shields.io/docker/cloud/build/lmacka/coopi)
 ![Docker Automated Build](https://img.shields.io/docker/automated/lmacka/coopi)
-![Python Version](https://img.shields.io/badge/python-3.11-blue)
-![Dependencies](https://img.shields.io/librariesio/github/lmacka/coopi)
 
 
 This is a simple door controller running on a Pi Zero to allow ad-hoc and scheduling of coop door operation.
