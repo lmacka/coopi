@@ -5,11 +5,11 @@ import json
 import os
 import sys
 import time
-import RPi.GPIO as GPIO
+from RPi.GPIO import GPIO
 from flask import Flask, render_template, request, redirect, url_for
 
 # Configuration
-ACTUATETIME = 3
+ACTUATETIME = 90
 RELAY1_PIN = 14
 RELAY2_PIN = 15
 STATEFILE = "state.json"
@@ -124,17 +124,17 @@ def schedule():
     save_schedule(schedule_data)
     return redirect(url_for("home"))
 
-cleanup_done = False
-
 def cleanup():
-    global cleanup_done
-    if not cleanup_done:
+    if not getattr(cleanup, "done", False):
         print("Cleaning up GPIO and other resources...")
         GPIO.cleanup()
         # Perform any other necessary cleanup here
-        cleanup_done = True
+        cleanup.done = True
 
-def signal_handler(sig, frame):
+# Initialize the function attribute
+cleanup.done = False
+
+def signal_handler(_sig, _frame):
     cleanup()
     sys.exit(0)
 

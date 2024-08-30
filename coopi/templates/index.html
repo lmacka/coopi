@@ -3,152 +3,224 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Door Control</title>
+    <title>Coop Door Control</title>
     <style>
       body {
-        background-color: #2e2e2e; /* Dark background */
-        color: #d4d4d4; /* Light text color */
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
+          background-color: #021526;
+          color: #6EACDA;
+          font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          margin: 0;
+          background-image: url('static/chookie-bg.jpg');
+          background-repeat: repeat;
       }
       button {
-        padding: 30px 70px; /* Increase button size */
-        font-size: 18px; /* Increase font size */
-        border: none;
-        border-radius: 5px;
-        background-color: #8b4513; /* Earthy brown color */
-        color: white;
-        cursor: pointer;
-        margin: 10px;
+          padding: 30px 70px;
+          font-size: 18px;
+          border: none;
+          border-radius: 25px;
+          background-color: #03346E;
+          color: #6EACDA;
+          cursor: pointer;
+          margin: 10px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
       }
       button:disabled {
-        background-color: #555555; /* Greyed out color */
-        color: #aaaaaa; /* Light grey text */
-        cursor: not-allowed;
+          background-color: #021526;
+          color: #03346E;
+          cursor: not-allowed;
       }
       .container {
-        width: 80%;
-        text-align: center;
-        margin: 0 auto; /* Center the container */
-        margin-top: 0; /* Align the container at the top */
+          text-align: center;
+          margin: 0 auto;
+          margin-top: 0;
       }
       .collapsed {
-        display: none;
+          display: none;
+      }
+      .schedule-form {
+          border: 1px solid #03346E;
+          border-radius: 25px;
+          padding: 20px;
+          margin: 0 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          justify-content: center;
       }
       .schedule-form label {
-        display: block;
-        margin: 10px 0 5px;
+          display: block;
+          margin: 10px 0 5px;
+      }
+      .schedule-form button[type="submit"] {
+          font-size: 12px;
+          padding: 5px 10px;
+          width: auto;
+          text-align: center;
       }
       .loading {
-        display: none;
-        color: #d4d4d4;
-        font-size: 18px;
+          display: none;
+          color: #d4d4d4;
+          font-size: 18px;
+      }
+      h2 {
+            font-size: 1.25em;
+      }
+      @media (max-width: 600px) {
+        button {
+              width: 75%;
+        }
+        .controls {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .schedule-form {
+            width: 75%;
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
       }
     </style>
+    <script>
+      // Get the countdown time from the template variable
+      var ACTUATETIME = "{{ actuate_time }}";
 
-<script>
-  // Get the countdown time from the template variable
-  var ACTUATETIME = "{{ actuate_time }}";
+      // Function to start the percentage countdown
+      function startPercentageCountdown(duration, display) {
+          var timer = duration;
+          var countdownInterval = setInterval(function () {
+              var percentage = Math.floor(((duration - timer) / duration) * 100);
+              display.textContent = percentage + "% complete";
 
-  // Function to start the percentage countdown
-  function startPercentageCountdown(duration, display) {
-      var timer = duration;
-      var countdownInterval = setInterval(function () {
-          var percentage = Math.floor(((duration - timer) / duration) * 100);
-          display.textContent = percentage + "% complete";
+              if (--timer < 0) {
+                  clearInterval(countdownInterval);
+                  display.textContent = "100% complete";
+                  location.reload();
+              }
+          }, 1000);
+      }
 
-          if (--timer < 0) {
-              clearInterval(countdownInterval);
-              display.textContent = "100% complete";
-              location.reload();
-          }
-      }, 1000);
-  }
+      // Function to show the loading div and disable buttons
+      function showLoading() {
+          document.getElementById('loading').style.display = 'block';
+          document.querySelector('#open-door-form button').disabled = true;
+          document.querySelector('#close-door-form button').disabled = true;
 
-  // Function to show the loading div and disable buttons
-  function showLoading() {
-      document.getElementById('loading').style.display = 'block';
-      document.querySelector('#open-door-form button').disabled = true;
-      document.querySelector('#close-door-form button').disabled = true;
+          // Start the percentage countdown
+          var display = document.getElementById('percentage');
+          startPercentageCountdown(ACTUATETIME, display);
+      }
 
-      // Start the percentage countdown
-      var display = document.getElementById('percentage');
-      startPercentageCountdown(ACTUATETIME, display);
-  }
+      // Function to handle form submission via AJAX
+      function handleFormSubmit(event) {
+          event.preventDefault();
+          showLoading();
 
-  // Function to handle form submission via AJAX
-  function handleFormSubmit(event) {
-      event.preventDefault();
-      showLoading();
+          var form = event.target;
+          var formData = new FormData(form);
+          var action = form.action;
 
-      var form = event.target;
-      var formData = new FormData(form);
-      var action = form.action;
+          fetch(action, {
+              method: 'POST',
+              body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+              // Handle the response data
+              console.log(data);
+              location.reload(); // Reload the page or update the UI as needed
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              location.reload(); // Reload the page or handle the error as needed
+          });
+      }
 
-      fetch(action, {
-          method: 'POST',
-          body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-          // Handle the response data
-          console.log(data);
-          location.reload(); // Reload the page or update the UI as needed
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          location.reload(); // Reload the page or handle the error as needed
+      // Attach the handleFormSubmit function to form submissions
+      document.addEventListener('DOMContentLoaded', function () {
+          document.getElementById('open-door-form').onsubmit = handleFormSubmit;
+          document.getElementById('close-door-form').onsubmit = handleFormSubmit;
       });
-  }
 
-  // Attach the handleFormSubmit function to form submissions
-  document.addEventListener('DOMContentLoaded', function () {
-      document.getElementById('open-door-form').onsubmit = handleFormSubmit;
-      document.getElementById('close-door-form').onsubmit = handleFormSubmit;
-  });
-</script>
-</head>
-<body>
-<div class="container">
-  <form id="open-door-form" action="{{ url_for('open_door_route') }}" method="post">
-      <button type="submit" {% if doorstate == 'open' %}disabled{% endif %}> ⬆️ Open Door</button>
-  </form>
-  <form id="close-door-form" action="{{ url_for('close_door_route') }}" method="post">
-      <button type="submit" {% if doorstate == 'closed' %}disabled{% endif %}> ⬇️ Close Door</button>
-  </form>
-  <div class="loading" id="loading">Working... {% if request.args.get('message') %}{{ request.args.get('message') }}{% endif %} <span id="percentage"></span></div>
-  <div class="schedule-form">
-      <h2 onclick="toggleScheduleForm()" style="cursor: pointer;">
-          Schedule Settings <span id="chevron">⌄</span>
-      </h2>
-      <form id="scheduleForm" class="collapsed" action="{{ url_for('schedule') }}" method="post">
-          <label for="open_time">Open Time:</label>
-          <input
-              type="time"
-              id="open_time"
-              name="open_time"
-              value="{{ schedule.open_time }}"
-          />
-          <label for="open_enabled">
+      // Function to toggle the schedule form visibility
+      function toggleScheduleForm() {
+          var form = document.getElementById('scheduleForm');
+          if (form.classList.contains('collapsed')) {
+              form.classList.remove('collapsed');
+          } else {
+              form.classList.add('collapsed');
+          }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="controls">
+        <form id="open-door-form" action="{{ url_for('open_door_route') }}" method="post">
+            <button type="submit" {% if doorstate == 'open' %}disabled{% endif %}>Open Door</button>
+        </form>
+        <form id="close-door-form" action="{{ url_for('close_door_route') }}" method="post">
+            <button type="submit" {% if doorstate == 'closed' %}disabled{% endif %}>Close Door</button>
+        </form>
+        <div class="loading" id="loading">Working... {% if request.args.get('message') %}{{ request.args.get('message') }}{% endif %} <span id="percentage"></span></div>
+      </div>
+      <div class="schedule-form">
+          <h2 onclick="toggleScheduleForm()" style="cursor: pointer;">
+              Schedule
+          </h2>
+          <form id="scheduleForm" class="collapsed" action="{{ url_for('schedule') }}" method="post">
+              <label for="open_time">Open Time:</label>
               <input
-                  type="checkbox"
-                  id="open_enabled"
-                  name="open_enabled"
-                  {%
-                  if
-                  schedule.open_enabled
-                  %}checked{%
-                  endif
-                  %}
+                  type="time"
+                  id="open_time"
+                  name="open_time"
+                  value="{{ schedule.open_time }}"
               />
-              Enable Open Schedule
-          </label>
-          <label for="close_time">Close Time:</label>
-      </form>
-  </div>
-</div>
-</body>
+              <label for="open_enabled">
+                  <input
+                      type="checkbox"
+                      id="open_enabled"
+                      name="open_enabled"
+                      {%
+                      if
+                      schedule.open_enabled
+                      %}checked{%
+                      endif
+                      %}
+                  />
+                  Enable Open Schedule
+              </label>
+              <label for="close_time">Close Time:</label>
+              <input
+                  type="time"
+                  id="close_time"
+                  name="close_time"
+                  value="{{ schedule.close_time }}"
+              />
+              <label for="close_enabled">
+                  <input
+                      type="checkbox"
+                      id="close_enabled"
+                      name="close_enabled"
+                      {%
+                      if
+                      schedule.close_enabled
+                      %}checked{%
+                      endif
+                      %}
+                  />
+                  Enable Close Schedule
+              </label>
+              <button type="submit">Save</button>
+          </form>
+      </div>
+    </div>
+  </body>
+</html>
