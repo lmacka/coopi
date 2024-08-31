@@ -4,9 +4,9 @@ services:
     image: lmacka/coopi:latest
     container_name: coopi
     privileged: true
+    platform: linux/arm/v6
     volumes:
-      - /opt/coopi/state.json:/coopi/state.json
-      - /opt/coopi/schedule.json:/coopi/schedule.json
+      - coopi_var:/coopi/var/
     ports:
       - "80:8086"
     restart: always
@@ -20,3 +20,6 @@ services:
       - WATCHTOWER_POLL_INTERVAL=600  # 10 minutes in seconds
     command: coopi
     restart: unless-stopped
+
+volumes:
+  coopi_var:
