@@ -14,7 +14,7 @@
 
 This is a simple door controller running on a Pi Zero to allow ad-hoc and scheduling of coop door operation.
 
-![The Exodus](static/img/the_exodus.gif)
+![The Exodus](doc/img/the_exodus.gif)
 
 
 # Requirements
@@ -27,11 +27,11 @@ This is a simple door controller running on a Pi Zero to allow ad-hoc and schedu
  - A coop with chickens
 
 
-![Circuit design](static/img/sketch.png)
+![Circuit design](doc/img/sketch.png)
 
 <p align="center">
-  <a href="static/img/door.jpg"><img src="static/img/door.jpg" alt="Finished installation" width="45%"/></a>
-  <a href="static/img/controller.jpg"><img src="static/img/controller.jpg" alt="Controller" width="45%"/></a>
+  <a href="doc/img/door.jpg"><img src="doc/img/door.jpg" alt="Finished installation" width="45%"/></a>
+  <a href="doc/img/controller.jpg"><img src="doc/img/controller.jpg" alt="Controller" width="45%"/></a>
 </p>
 
 
@@ -71,5 +71,5 @@ To get started with the door controller software, follow these steps:
 6. Browse to http://your-ip to access the door controller web UI.
 
 <p align="center">
-  <img src="static/img/screenshot.png" alt="UI" style="width: 350px;"/>
+  <img src="doc/img/screenshot.png" alt="UI" style="width: 350px;"/>
 </p>

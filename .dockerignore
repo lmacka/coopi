@@ -1,5 +1,7 @@
 # Ignore the following files and directories
 __pycache__
+extras/
+doc/
 *.pyc
 *.pyo
 *.pyd
@@ -10,5 +12,3 @@ __pycache__
 README.md
 LICENSE
 *.json
-extras/
-static/
