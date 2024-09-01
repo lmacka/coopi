@@ -1,3 +1,2 @@
 flask==3.0.3
-# RPi.GPIO==0.7.1 # If building from source
-rpi-gpio==0.7.1 # If pulling from pywheels
+RPi.GPIO==0.7.1

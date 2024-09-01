@@ -4,7 +4,6 @@ services:
     image: lmacka/coopi:latest
     container_name: coopi
     privileged: true
-    platform: linux/arm/v6
     volumes:
       - coopi_var:/coopi/var/
     ports:
