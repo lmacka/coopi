@@ -40,7 +40,9 @@ This is a simple door controller running on a Pi Zero to allow ad-hoc and schedu
 ## Quickstart
 If you have built the unit as per the above instructions, you can simply install docker-compose and run
 ```bash
-curl -s https://raw.githubusercontent.com/lmacka/coopi/main/compose.yaml | docker-compose -f - up
+curl -s https://raw.githubusercontent.com/lmacka/coopi/main/docker-compose.yaml | docker-compose -f - up -d
 ```
+
+So long as docker is set to start at boot, the application will come back after restarts.
 
 
