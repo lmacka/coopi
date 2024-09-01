@@ -7,7 +7,7 @@ services:
     volumes:
       - coopi_var:/coopi/var/
     ports:
-      - "80:8086"
+      - "8086:8086"
     restart: always
 
   watchtower:
@@ -19,6 +19,17 @@ services:
       - WATCHTOWER_POLL_INTERVAL=600  # 10 minutes in seconds
     command: coopi
     restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./extras/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - coopi
+    restart: always
 
 volumes:
   coopi_var:
