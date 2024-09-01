@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  coopi:
+    image: lmacka/coopi:latest
+    container_name: coopi
+    privileged: true
+    volumes:
+      - coopi_var:/coopi/var/
+    ports:
+      - "8086:8086"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.coopi.rule=PathPrefix(`/`)"
+      - "traefik.http.services.coopi.loadbalancer.server.port=8086"
+    restart: always
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: coopi traefik
+    restart: unless-stopped
+
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik
+    ports:
+      - "80:80"
+      - "8080:8080" # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    restart: always
+
+volumes:
+  coopi_var:

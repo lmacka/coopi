@@ -5,11 +5,9 @@
 ![Pylint Status](https://github.com/lmacka/coopi/actions/workflows/pylint.yml/badge.svg)
 
 ![GHCR Build Status](https://github.com/lmacka/coopi/actions/workflows/ghcr-build.yml/badge.svg)
-![Docker Build Status](https://img.shields.io/docker/cloud/build/lmacka/coopi)
 ![Docker Pulls](https://img.shields.io/docker/pulls/lmacka/coopi)
 ![Docker Stars](https://img.shields.io/docker/stars/lmacka/coopi)
 ![Docker Image Size](https://img.shields.io/docker/image-size/lmacka/coopi/latest)
-![Docker Automated Build](https://img.shields.io/docker/automated/lmacka/coopi)
 
 
 This is a simple door controller running on a Pi Zero to allow ad-hoc and scheduling of coop door operation.
@@ -34,42 +32,15 @@ This is a simple door controller running on a Pi Zero to allow ad-hoc and schedu
   <a href="doc/img/controller.jpg"><img src="doc/img/controller.jpg" alt="Controller" width="45%"/></a>
 </p>
 
-
-
-
-## Quickstart
-To get started with the door controller software, follow these steps:
-
-1. Install the necessary dependencies. You can do this by running the following command:
-
-    ```bash
-    sudo apt-get install nginx python3-flask python3-rpi.gpio
-    ```
-
-2. Next, navigate to the `extras/` directory. You may need to modify these files to suit your environment.
-
-3. Copy the system configuration files to the appropriate locations. For example, you can use the following commands to copy the files:
-
-    ```bash
-    sudo cp extras/nginx.conf /etc/nginx/sites-enabled/default
-    sudo cp extras/config.service /etc/systemd/system/coopi.service
-    sudo systemctl daemon-reload
-    ```
-
-    Make sure to replace `/home/pi/coopi` with the actual path to your project's directory.
-
-4. Once the files are copied, open the `config.py` file and configure it according to your needs. This file contains various settings for the door controller, such as actuator cycle time and GPIO pin assignments.
-
-5. After configuring `config.py`, restart nginx to apply the changes:
-
-    ```bash
-    sudo systemctl enable nginx
-    sudo systemctl start nginx
-    sudo systemctl enable coopi
-    sudo systemctl start coopi
-    ```
-6. Browse to http://your-ip to access the door controller web UI.
-
 <p align="center">
   <img src="doc/img/screenshot.png" alt="UI" style="width: 350px;"/>
 </p>
+
+
+## Quickstart
+If you have built the unit as per the above instructions, you can simply install docker-compose and run
+```bash
+curl -s https://raw.githubusercontent.com/lmacka/coopi/main/compose.yaml | docker-compose -f - up
+```
+
+
