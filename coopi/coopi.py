@@ -5,7 +5,10 @@ import json
 import os
 import sys
 import time
+from datetime import datetime
 import RPi.GPIO
+import requests
+import pytz
 from flask import Flask, render_template, request, redirect, url_for
 
 # Configuration
@@ -34,6 +37,23 @@ app = Flask(__name__)
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
+
+# Fetch the local timezone using ipinfo.io
+def fetch_timezone():
+    try:
+        response = requests.get("http://ipinfo.io/timezone", timeout=10)
+        if response.status_code == 200:
+            return response.text.strip()
+        logging.error("Failed to fetch timezone: %s", response.status_code)
+        return "UTC"
+    except requests.RequestException as e:
+        logging.error("Exception occurred while fetching timezone: %s", e)
+        return "UTC"
+
+# Set the local timezone
+LOCAL_TIMEZONE = fetch_timezone()
+logging.info("Detected local timezone: %s", LOCAL_TIMEZONE)
+local_tz = pytz.timezone(LOCAL_TIMEZONE)
 
 # Ensure the state file exists with a default state
 if not os.path.exists(STATEFILE):
@@ -77,30 +97,42 @@ def close_door():
         RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
         return "Door closed"
 
-
 def check_schedule():
+    logging.info("Starting schedule check thread...")
     while True:
         schedule_data = load_schedule()
-        current_time = time.strftime("%H:%M")
-        if schedule_data["open_enabled"] and schedule_data["open_time"] == current_time:
+        current_time = datetime.now(local_tz).strftime("%H:%M")
+        logging.debug("Current time: %s", current_time)
+        logging.debug("Schedule data: %s", schedule_data)
+        if schedule_data.get("open_enabled") and schedule_data.get("open_time") == current_time:
             logging.info("Opening door on schedule...")
             open_door()
-        if schedule_data["close_enabled"] and schedule_data["close_time"] == current_time:
+        if schedule_data.get("close_enabled") and schedule_data.get("close_time") == current_time:
             logging.info("Closing door on schedule...")
             close_door()
+        logging.debug("Sleeping for 60 seconds...")
         time.sleep(60)  # Check every minute
-
 
 def load_schedule():
     if os.path.exists(SCHEDULEFILE):
         with open(SCHEDULEFILE, "r", encoding='utf-8') as schedule_file:
-            return json.load(schedule_file)
-    return []
+            schedule_data = json.load(schedule_file)
+            return schedule_data
+    return {}
 
 def save_schedule(schedule_data):
     with open(SCHEDULEFILE, "w", encoding='utf-8') as schedule_file:
         json.dump(schedule_data, schedule_file, ensure_ascii=False)
 
+def cleanup():
+    if not getattr(cleanup, "done", False):
+        print("Cleaning up GPIO...")
+        RPi.GPIO.cleanup()
+        cleanup.done = True
+
+def signal_handler(_sig, _frame):
+    cleanup()
+    sys.exit(0)
 
 @app.route("/")
 def home():
@@ -113,7 +145,6 @@ def home():
         schedule=schedule_data,
         actuate_time=ACTUATETIME,
         doorstate=doorstate
-
     )
 
 @app.route("/open", methods=["POST"])
@@ -137,48 +168,41 @@ def schedule():
     save_schedule(schedule_data)
     return redirect(url_for("home"))
 
-def cleanup():
-    if not getattr(cleanup, "done", False):
-        print("Cleaning up GPIO and other resources...")
-        RPi.GPIO.cleanup()
-        # Perform any other necessary cleanup here
-        cleanup.done = True
-
 # Initialize the function attribute
 cleanup.done = False
 
-def signal_handler(_sig, _frame):
-    cleanup()
-    sys.exit(0)
+# Listen for signals
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+
+def main():
+    if len(sys.argv) > 2:
+        print("Error: Only one argument is allowed.")
+        sys.exit(1)
+    elif len(sys.argv) == 2:
+        command = sys.argv[1]
+        try:
+            if command == "open":
+                print(open_door())
+            elif command == "close":
+                print(close_door())
+            else:
+                print(f"Invalid command: {command}")
+                sys.exit(1)
+        except KeyboardInterrupt:
+            pass
+    else:
+        # Start the schedule checking thread
+        schedule_thread = threading.Thread(target=check_schedule)
+        schedule_thread.daemon = True
+        schedule_thread.start()
+
+        app.run(host="0.0.0.0", port=8086)
 
 if __name__ == "__main__":
-    # Register the signal handler for SIGINT
-    signal.signal(signal.SIGINT, signal_handler)
-
-    try:
-        if len(sys.argv) == 2:
-            command = sys.argv[1]
-            try:
-                if command == "open":
-                    print(open_door())
-                elif command == "close":
-                    print(close_door())
-                else:
-                    print(f"Invalid command: {command}")
-                    sys.exit(1)
-            except KeyboardInterrupt:
-                pass
-            finally:
-                for thread in threading.enumerate():
-                    if thread is not threading.main_thread():
-                        thread.join()
-                cleanup()
-        else:
-            # Start the schedule checking thread
-            schedule_thread = threading.Thread(target=check_schedule)
-            schedule_thread.daemon = True
-            schedule_thread.start()
-
-            app.run(host="0.0.0.0", port=8086)
-    finally:
-        cleanup()
+    main()
+elif __name__ == "coopi.coopi":
+    # Start the schedule checking thread
+    module_schedule_thread = threading.Thread(target=check_schedule)
+    module_schedule_thread.daemon = True
+    module_schedule_thread.start()

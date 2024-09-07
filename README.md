@@ -1,4 +1,4 @@
-# A Raspberry Pi in a Chicken Coop
+# A Pi-Powered Coop Door Controller <img src="coopi/static/favicon.png" alt="favicon" style="height: 1em; vertical-align: middle;">
 
 ![Python Version](https://img.shields.io/badge/python-3.11-blue)
 ![Dependencies](https://img.shields.io/librariesio/github/lmacka/coopi)
@@ -10,7 +10,7 @@
 ![Docker Image Size](https://img.shields.io/docker/image-size/lmacka/coopi/latest)
 
 
-This is a simple door controller running on a Pi Zero to allow ad-hoc and scheduling of coop door operation.
+This is a simple door controller running on a Pi Zero to allow ad-hoc operation and scheduling of a coop door.
 
 ![The Exodus](doc/img/the_exodus.gif)
 
