@@ -2,6 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-door_state.json
-schedule.json
-state.json
+var/schedule.json
+var/state.json
+.venv

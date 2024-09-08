@@ -1,5 +1,5 @@
 # Use a balena Python runtime as a parent image
-FROM balenalib/raspberry-pi-python:3.10.10-bookworm-run
+FROM balenalib/raspberry-pi-python:3.11.2-bullseye-run
 
 # Set the working directory in the container
 WORKDIR /coopi

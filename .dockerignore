@@ -12,3 +12,4 @@ doc/
 README.md
 LICENSE
 *.json
+.venv
