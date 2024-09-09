@@ -12,7 +12,7 @@ import pytz
 from flask import Flask, render_template, request, redirect, url_for
 
 # Configuration
-ACTUATETIME = 5
+ACTUATETIME = 90
 RELAY1_PIN = 14
 RELAY2_PIN = 15
 STATEFILE = "var/state.json"
