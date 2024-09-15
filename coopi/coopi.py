@@ -17,6 +17,7 @@ RELAY1_PIN = 14
 RELAY2_PIN = 15
 STATEFILE = "var/state.json"
 SCHEDULEFILE = "var/schedule.json"
+LOCAL_TIMEZONE = "Australia/Brisbane"
 
 # Initialize GPIO pins
 def init_gpio():
@@ -38,22 +39,21 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# Fetch the local timezone using ipinfo.io
-def fetch_timezone():
+# Verify and set the local timezone
+def verify_timezone():
     try:
-        response = requests.get("http://ipinfo.io/timezone", timeout=10)
-        if response.status_code == 200:
-            return response.text.strip()
-        logging.error("Failed to fetch timezone: %s", response.status_code)
-        return "UTC"
-    except requests.RequestException as e:
-        logging.error("Exception occurred while fetching timezone: %s", e)
-        return "UTC"
+        local_tz = pytz.timezone(LOCAL_TIMEZONE)
+        current_time = datetime.now(local_tz)
+        logging.info(f"Verified timezone: {LOCAL_TIMEZONE}")
+        logging.info(f"Current local time: {current_time}")
+        return local_tz
+    except pytz.exceptions.UnknownTimeZoneError:
+        logging.error(f"Invalid timezone: {LOCAL_TIMEZONE}")
+        logging.warning("Exiting due to incorrect timezone configuration.")
+        sys.exit(1)
 
-# Set the local timezone
-LOCAL_TIMEZONE = fetch_timezone()
-logging.info("Detected local timezone: %s", LOCAL_TIMEZONE)
-local_tz = pytz.timezone(LOCAL_TIMEZONE)
+# Verify and set the local timezone
+local_tz = verify_timezone()
 
 # Ensure the state file exists with a default state
 if not os.path.exists(STATEFILE):
@@ -175,10 +175,28 @@ cleanup.done = False
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGINT, signal_handler)
 
+def print_help():
+    help_message = """
+Usage: python coopi.py [OPTION]
+Control the coop door or run the web UI with scheduling functionality.
+
+Options:
+  open         Open the coop door
+  close        Close the coop door
+  server       Run the web server with scheduling (default if no option is provided)
+  -h, --help   Display this help message
+
+Examples:
+  python coopi.py open
+  python coopi.py close
+  python coopi.py server
+"""
+    print(help_message)
+
 def main():
-    if len(sys.argv) > 2:
-        print("Error: Only one argument is allowed.")
-        sys.exit(1)
+    if len(sys.argv) == 1 or sys.argv[1] in ['-h', '--help']:
+        print_help()
+        sys.exit(0)
     elif len(sys.argv) == 2:
         command = sys.argv[1]
         try:
@@ -186,18 +204,22 @@ def main():
                 print(open_door())
             elif command == "close":
                 print(close_door())
+            elif command == "server":
+                # Start the schedule checking thread
+                schedule_thread = threading.Thread(target=check_schedule)
+                schedule_thread.daemon = True
+                schedule_thread.start()
+                app.run(host="0.0.0.0", port=8086)
             else:
                 print(f"Invalid command: {command}")
+                print_help()
                 sys.exit(1)
         except KeyboardInterrupt:
             pass
     else:
-        # Start the schedule checking thread
-        schedule_thread = threading.Thread(target=check_schedule)
-        schedule_thread.daemon = True
-        schedule_thread.start()
-
-        app.run(host="0.0.0.0", port=8086)
+        print("Error: Too many arguments.")
+        print_help()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
