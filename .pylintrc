@@ -6,6 +6,7 @@ disable=
     C0114,  # Missing module docstring
     C0116,  # Missing function or method docstring
     R0903,  # Too few public methods
+    E1101   # Module has no member (for RPi.GPIO)
 
 [FORMAT]
 max-line-length=100
@@ -22,4 +23,5 @@ min-public-methods=2
 max-public-methods=20
 
 [TYPECHECK]
-ignored-modules=flask, cv2, RPi.GPIO
+ignored-modules=flask, cv2, RPi, RPi.GPIO
+generated-members=RPi.GPIO.*
