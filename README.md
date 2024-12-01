@@ -4,10 +4,16 @@
 ![Version](https://img.shields.io/github/v/release/lmacka/coopi)
 ![Dependencies](https://img.shields.io/librariesio/github/lmacka/coopi)
 ![Pylint Status](https://github.com/lmacka/coopi/actions/workflows/pylint.yml/badge.svg)
+![Security Scan](https://github.com/lmacka/coopi/actions/workflows/security-scan.yml/badge.svg)
 ![GHCR Build Status](https://github.com/lmacka/coopi/actions/workflows/docker-build.yml/badge.svg)
 ![Docker Pulls](https://img.shields.io/docker/pulls/lmacka/coopi)
 ![Docker Stars](https://img.shields.io/docker/stars/lmacka/coopi)
 ![Docker Image Size](https://img.shields.io/docker/image-size/lmacka/coopi/latest)
+![License](https://img.shields.io/github/license/lmacka/coopi)
+![Last Commit](https://img.shields.io/github/last-commit/lmacka/coopi)
+![Open Issues](https://img.shields.io/github/issues/lmacka/coopi)
+![Code Size](https://img.shields.io/github/languages/code-size/lmacka/coopi)
+![Platform](https://img.shields.io/badge/platform-raspberry%20pi-C51A4A)
 
 
 This is a simple door controller running on a Pi Zero to allow ad-hoc operation and scheduling of a coop door.
