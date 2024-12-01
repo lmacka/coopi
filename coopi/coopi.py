@@ -9,6 +9,7 @@ from datetime import datetime
 import RPi.GPIO
 import pytz
 from flask import Flask, render_template, request, redirect, url_for
+import requests
 
 # Configuration
 ACTUATETIME = 90
@@ -142,6 +143,32 @@ def signal_handler(_sig, _frame):
     cleanup()
     sys.exit(0)
 
+def get_version_info():
+    try:
+        current_version = os.getenv('VERSION', 'v0.1.0')
+        # Check GitHub API for latest release
+        response = requests.get(
+            'https://api.github.com/repos/lmacka/coopi/releases/latest',
+            timeout=5
+        )
+        if response.status_code == 200:
+            latest_version = response.json()['tag_name']
+            latest_url = response.json()['html_url']
+            return {
+                'current': current_version,
+                'latest': latest_version,
+                'url': latest_url,
+                'update_available': latest_version != current_version
+            }
+    except Exception as e:
+        logging.warning("Failed to check version: %s", str(e))
+    return {
+        'current': current_version,
+        'latest': None,
+        'url': None,
+        'update_available': False
+    }
+
 @app.route('/')
 def index():
     # Get current door state
@@ -155,10 +182,14 @@ def index():
     # Get current time in configured timezone
     current_time = datetime.now(local_tz).strftime("%d/%m %I:%M %p %Z")
 
+    # Get version info
+    version_info = get_version_info()
+
     return render_template('index.html',
                          doorstate=doorstate,
                          schedule=schedule_data,
-                         current_time=current_time)
+                         current_time=current_time,
+                         version_info=version_info)
 
 @app.route("/open", methods=["POST"])
 def open_door_route():

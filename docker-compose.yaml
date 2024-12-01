@@ -5,6 +5,7 @@ services:
     privileged: true
     environment:
       - TZ=Australia/Brisbane
+      - VERSION=${VERSION:-v0.1.0}
     volumes:
       - coopi_var:/coopi/var/
     ports:

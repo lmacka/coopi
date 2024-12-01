@@ -3,6 +3,7 @@ FROM balenalib/raspberry-pi-python:3.11-run
 
 # Set environment variable for timezone and working directory
 ENV TZ=Australia/Brisbane
+ENV VERSION=${VERSION:-v0.1.0}
 WORKDIR /coopi
 
 # Copy only requirements first to leverage Docker cache
