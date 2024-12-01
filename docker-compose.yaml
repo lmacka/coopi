@@ -3,6 +3,8 @@ services:
     image: lmacka/coopi:latest
     container_name: coopi
     privileged: true
+    environment:
+      - TZ=Australia/Brisbane
     volumes:
       - coopi_var:/coopi/var/
     ports:

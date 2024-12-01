@@ -7,7 +7,6 @@ import sys
 import time
 from datetime import datetime
 import RPi.GPIO
-import requests
 import pytz
 from flask import Flask, render_template, request, redirect, url_for
 
@@ -42,15 +41,24 @@ logging.basicConfig(
 # Verify and set the local timezone
 def verify_timezone():
     try:
-        local_tz = pytz.timezone(LOCAL_TIMEZONE)
-        current_time = datetime.now(local_tz)
-        logging.info(f"Verified timezone: {LOCAL_TIMEZONE}")
-        logging.info(f"Current local time: {current_time}")
-        return local_tz
-    except pytz.exceptions.UnknownTimeZoneError:
-        logging.error(f"Invalid timezone: {LOCAL_TIMEZONE}")
-        logging.warning("Exiting due to incorrect timezone configuration.")
-        sys.exit(1)
+        # First try to get timezone from environment variable
+        tz_name = os.getenv('TZ', LOCAL_TIMEZONE)
+        timezone = pytz.timezone(tz_name)
+        # Verify we can get the current time in this timezone
+        current_time = datetime.now(timezone)
+        # Verify by checking offset calculation
+        offset = current_time.utcoffset()
+        if offset is None:
+            raise pytz.exceptions.UnknownTimeZoneError("Invalid timezone offset")
+        logging.info("Verified timezone: %s", tz_name)
+        logging.info("Current local time: %s", current_time)
+        logging.info("UTC offset: %s", offset)
+        return timezone
+    except (pytz.exceptions.UnknownTimeZoneError, pytz.exceptions.InvalidTimeError) as e:
+        logging.error("Invalid timezone: %s - %s", tz_name, str(e))
+        # Fall back to UTC rather than exiting
+        logging.warning("Falling back to UTC timezone")
+        return pytz.UTC
 
 # Verify and set the local timezone
 local_tz = verify_timezone()
@@ -134,18 +142,23 @@ def signal_handler(_sig, _frame):
     cleanup()
     sys.exit(0)
 
-@app.route("/")
-def home():
-    with open(STATEFILE, encoding='utf-8') as json_file:
-        json_data = json.load(json_file)
-        doorstate = json_data["state"]
-    schedule_data = load_schedule()
-    return render_template(
-        "index.html",
-        schedule=schedule_data,
-        actuate_time=ACTUATETIME,
-        doorstate=doorstate
-    )
+@app.route('/')
+def index():
+    # Get current door state
+    with open(STATEFILE, "r", encoding='utf-8') as state_file:
+        doorstate = json.load(state_file)["state"]
+
+    # Get current schedule
+    with open(SCHEDULEFILE, "r", encoding='utf-8') as schedule_file:
+        schedule_data = json.load(schedule_file)
+
+    # Get current time in configured timezone
+    current_time = datetime.now(local_tz).strftime("%Y-%m-%d %H:%M:%S %Z")
+
+    return render_template('index.html',
+                         doorstate=doorstate,
+                         schedule=schedule_data,
+                         current_time=current_time)
 
 @app.route("/open", methods=["POST"])
 def open_door_route():

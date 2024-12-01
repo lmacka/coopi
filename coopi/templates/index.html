@@ -88,6 +88,14 @@
             transform: translateX(-50%);
         }
       }
+      .current-time {
+        text-align: center;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-family: monospace;
+      }
     </style>
     <script>
       // Get the countdown time from the template variable
@@ -173,54 +181,58 @@
         <div class="loading" id="loading">Working... {% if request.args.get('message') %}{{ request.args.get('message') }}{% endif %} <span id="percentage"></span></div>
       </div>
       <div class="schedule-form">
-          <h2 onclick="toggleScheduleForm()" style="cursor: pointer;">
-              Schedule
-          </h2>
-          <form id="scheduleForm" class="collapsed" action="{{ url_for('schedule') }}" method="post">
-              <label for="open_time">Open Time:</label>
-              <input
-                  type="time"
-                  id="open_time"
-                  name="open_time"
-                  value="{{ schedule.open_time }}"
-              />
-              <label for="open_enabled">
+          <div class="schedule-section">
+            <h2 onclick="toggleScheduleForm()" style="cursor: pointer;">Schedule ▼</h2>
+            <div id="scheduleForm" class="collapsed">
+              <p class="current-time">Current Time: {{ current_time }}</p>
+              
+              <form action="{{ url_for('update_schedule') }}" method="post">
+                  <label for="open_time">Open Time:</label>
                   <input
-                      type="checkbox"
-                      id="open_enabled"
-                      name="open_enabled"
-                      {%
-                      if
-                      schedule.open_enabled
-                      %}checked{%
-                      endif
-                      %}
+                      type="time"
+                      id="open_time"
+                      name="open_time"
+                      value="{{ schedule.open_time }}"
                   />
-                  Enable Open Schedule
-              </label>
-              <label for="close_time">Close Time:</label>
-              <input
-                  type="time"
-                  id="close_time"
-                  name="close_time"
-                  value="{{ schedule.close_time }}"
-              />
-              <label for="close_enabled">
+                  <label for="open_enabled">
+                      <input
+                          type="checkbox"
+                          id="open_enabled"
+                          name="open_enabled"
+                          {%
+                          if
+                          schedule.open_enabled
+                          %}checked{%
+                          endif
+                          %}
+                      />
+                      Enable Open Schedule
+                  </label>
+                  <label for="close_time">Close Time:</label>
                   <input
-                      type="checkbox"
-                      id="close_enabled"
-                      name="close_enabled"
-                      {%
-                      if
-                      schedule.close_enabled
-                      %}checked{%
-                      endif
-                      %}
+                      type="time"
+                      id="close_time"
+                      name="close_time"
+                      value="{{ schedule.close_time }}"
                   />
-                  Enable Close Schedule
-              </label>
-              <button type="submit">Save</button>
-          </form>
+                  <label for="close_enabled">
+                      <input
+                          type="checkbox"
+                          id="close_enabled"
+                          name="close_enabled"
+                          {%
+                          if
+                          schedule.close_enabled
+                          %}checked{%
+                          endif
+                          %}
+                      />
+                      Enable Close Schedule
+                  </label>
+                  <button type="submit">Save</button>
+              </form>
+            </div>
+          </div>
       </div>
     </div>
   </body>
