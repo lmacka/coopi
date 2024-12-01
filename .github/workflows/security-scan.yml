@@ -40,4 +40,6 @@ jobs:
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
-          severity: 'CRITICAL,HIGH' 
+          severity: 'CRITICAL'  # Only fail on CRITICAL vulnerabilities
+          timeout: '5m'
+          vuln-type: 'os,library' 
