@@ -153,7 +153,7 @@ def index():
         schedule_data = json.load(schedule_file)
 
     # Get current time in configured timezone
-    current_time = datetime.now(local_tz).strftime("%Y-%m-%d %H:%M:%S %Z")
+    current_time = datetime.now(local_tz).strftime("%d/%m %I:%M %p %Z")
 
     return render_template('index.html',
                          doorstate=doorstate,

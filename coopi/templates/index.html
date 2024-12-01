@@ -40,6 +40,17 @@
           text-align: center;
           margin: 0 auto;
           margin-top: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+      }
+      .controls {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 20px;
       }
       .collapsed {
           display: none;
@@ -50,7 +61,7 @@
           padding: 20px;
           margin: 0 0;
           background-color: rgba(0, 0, 0, 0.5);
-          justify-content: center;
+          width: 300px;  /* Set a fixed width */
       }
       .schedule-form label {
           display: block;
@@ -71,27 +82,24 @@
             font-size: 1.25em;
       }
       @media (max-width: 600px) {
+        .container {
+            min-height: auto;
+            padding: 20px 0;
+        }
         .controls {
-            position: absolute;
-            top: 15%;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
+            position: relative;
+            margin-bottom: 20px;
         }
         .schedule-form {
-            position: absolute;
-            bottom: 10%;
-            left: 50%;
-            transform: translateX(-50%);
+            position: relative;
+            width: 90%;  /* Adjust width for mobile */
         }
       }
       .current-time {
         text-align: center;
         padding: 10px;
-        background-color: #f8f9fa;
+        background-color: #03346E;
+        color: #6EACDA;
         border-radius: 4px;
         margin: 10px 0;
         font-family: monospace;
@@ -184,7 +192,7 @@
           <div class="schedule-section">
             <h2 onclick="toggleScheduleForm()" style="cursor: pointer;">Schedule ▼</h2>
             <div id="scheduleForm" class="collapsed">
-              <p class="current-time">Current Time: {{ current_time }}</p>
+              <p class="current-time">Current Time: <br/>{{ current_time }}</p>
               
               <form action="{{ url_for('update_schedule') }}" method="post">
                   <label for="open_time">Open Time:</label>
