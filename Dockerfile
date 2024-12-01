@@ -1,5 +1,5 @@
 # Use a balena Python runtime as a parent image
-FROM balenalib/raspberry-pi-python:3.10-bullseye-run
+FROM balenalib/raspberry-pi-python:3.11-bookworm-run
 
 # Set environment variables
 ENV TZ=Australia/Brisbane \
