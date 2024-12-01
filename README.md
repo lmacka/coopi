@@ -1,6 +1,7 @@
 # A Pi-Powered Coop Door Controller <img src="coopi/static/favicon.png" alt="favicon" style="height: 1em; vertical-align: middle;">
 
 ![Python Version](https://img.shields.io/badge/python-3.11-blue)
+![Version](https://img.shields.io/github/v/release/lmacka/coopi)
 ![Dependencies](https://img.shields.io/librariesio/github/lmacka/coopi)
 ![Pylint Status](https://github.com/lmacka/coopi/actions/workflows/pylint.yml/badge.svg)
 
