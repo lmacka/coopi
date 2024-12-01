@@ -42,4 +42,5 @@ jobs:
           ignore-unfixed: true
           severity: 'CRITICAL'  # Only fail on CRITICAL vulnerabilities
           timeout: '5m'
-          vuln-type: 'os,library' 
+          vuln-type: 'os,library'
+          ignorefile: '.trivyignore' 
