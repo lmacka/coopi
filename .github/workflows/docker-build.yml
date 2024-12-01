@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'coopi/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      - 'docker-compose.yaml'
+      - '.github/workflows/docker-build.yml'
+      - '.dockerignore'
 
 jobs:
   build-and-push:
@@ -41,6 +48,9 @@ jobs:
           release_name: Release ${{ steps.version.outputs.new_version }}
           draft: false
           prerelease: false
+          body: |
+            Changes in this Release:
+            - Updated files: ${{ join(github.event.commits.*.modified, ', ') }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
