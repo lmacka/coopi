@@ -163,15 +163,15 @@ def index():
 @app.route("/open", methods=["POST"])
 def open_door_route():
     open_door()
-    return redirect(url_for("home"))
+    return redirect(url_for("index"))
 
 @app.route("/close", methods=["POST"])
 def close_door_route():
     close_door()
-    return redirect(url_for("home"))
+    return redirect(url_for("index"))
 
 @app.route("/schedule", methods=["POST"])
-def schedule():
+def update_schedule():
     schedule_data = {
         "open_time": request.form["open_time"],
         "close_time": request.form["close_time"],
@@ -179,7 +179,7 @@ def schedule():
         "close_enabled": "close_enabled" in request.form,
     }
     save_schedule(schedule_data)
-    return redirect(url_for("home"))
+    return redirect(url_for("index"))
 
 # Initialize the function attribute
 cleanup.done = False
