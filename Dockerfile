@@ -1,5 +1,5 @@
 # Use a balena Python runtime as a parent image
-FROM balenalib/raspberry-pi-python:3.11-run
+FROM balenalib/raspberry-pi-python:3.11-bullseye-run
 
 # Set environment variable for timezone and working directory
 ENV TZ=Australia/Brisbane
