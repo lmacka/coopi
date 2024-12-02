@@ -12,13 +12,15 @@ services:
       - "80:80"
     command: gunicorn --bind 0.0.0.0:80 --timeout 120 coopi.coopi:app
     restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 3600 coopi --label-enable
+    command: --interval 3600 --label-enable
     restart: unless-stopped
 
 volumes:
