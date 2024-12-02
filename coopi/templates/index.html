@@ -77,6 +77,7 @@
           display: none;
           color: #d4d4d4;
           font-size: 18px;
+          text-align: center;
       }
       h2 {
             font-size: 1.25em;
@@ -118,24 +119,51 @@
       .version-info a:hover {
           text-decoration: underline;
       }
+      .progress-container {
+          width: 200px;
+          background-color: #021526;
+          border-radius: 10px;
+          padding: 3px;
+          margin: 10px auto;
+      }
+      
+      .progress-bar {
+          width: 0%;
+          height: 20px;
+          background-color: #6EACDA;
+          border-radius: 7px;
+          transition: width 0.3s ease-in-out;
+      }
     </style>
     <script>
       // Get the countdown time from the template variable
-      var ACTUATETIME = "{{ actuate_time }}";
+      var ACTUATETIME = parseInt("{{ actuate_time }}", 10);
 
       // Function to start the percentage countdown
       function startPercentageCountdown(duration, display) {
-          var timer = duration;
+          var startTime = Date.now();
+          var endTime = startTime + (duration * 1000);
+          var progressBar = document.getElementById('progress-bar');
+          
           var countdownInterval = setInterval(function () {
-              var percentage = Math.floor(((duration - timer) / duration) * 100);
-              display.textContent = percentage + "% complete";
+              var currentTime = Date.now();
+              var elapsedTime = currentTime - startTime;
+              var percentage = Math.floor((elapsedTime / (duration * 1000)) * 100);
+              
+              // Ensure percentage stays between 0 and 100
+              percentage = Math.min(Math.max(percentage, 0), 100);
+              
+              // Update progress bar width
+              progressBar.style.width = percentage + '%';
 
-              if (--timer < 0) {
+              if (currentTime >= endTime) {
                   clearInterval(countdownInterval);
-                  display.textContent = "100% complete";
-                  location.reload();
+                  progressBar.style.width = '100%';
+                  setTimeout(() => {
+                      location.reload();
+                  }, 500); // Small delay to show completed progress
               }
-          }, 1000);
+          }, 100); // Update every 100ms
       }
 
       // Function to show the loading div and disable buttons
@@ -200,7 +228,12 @@
         <form id="close-door-form" action="{{ url_for('close_door_route') }}" method="post">
             <button type="submit" {% if doorstate == 'closed' %}disabled{% endif %}>Close Door</button>
         </form>
-        <div class="loading" id="loading">Working... {% if request.args.get('message') %}{{ request.args.get('message') }}{% endif %} <span id="percentage"></span></div>
+        <div class="loading" id="loading">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            {% if request.args.get('message') %}{{ request.args.get('message') }}{% endif %}
+        </div>
       </div>
       <div class="schedule-form">
           <div class="schedule-section">
