@@ -145,7 +145,9 @@ def signal_handler(_sig, _frame):
 
 def get_version_info():
     try:
-        current_version = os.getenv('VERSION', 'v0.1.0').lstrip('v')
+        # Get version embedded during build
+        current_version = os.getenv('APP_VERSION', 'v0.1.0').lstrip('v')
+        
         # Check GitHub API for latest release
         response = requests.get(
             'https://api.github.com/repos/lmacka/coopi/releases/latest',

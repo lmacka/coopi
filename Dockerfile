@@ -1,9 +1,19 @@
 # Use a balena Python runtime as a parent image
 FROM balenalib/raspberry-pi-python:3.11-bookworm-run
 
+ARG VERSION
+ARG BUILD_DATE
+ARG VCS_REF
+
+LABEL org.label-schema.version=$VERSION \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-ref=$VCS_REF
+
+# Set version as an environment variable during build
+ENV APP_VERSION=$VERSION
+
 # Set environment variables
 ENV TZ=Australia/Brisbane \
-    VERSION=${VERSION:-v0.1.0} \
     PYTHONUNBUFFERED=1
 
 WORKDIR /coopi
