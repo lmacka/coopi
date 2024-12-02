@@ -145,25 +145,25 @@ def signal_handler(_sig, _frame):
 
 def get_version_info():
     try:
-        current_version = os.getenv('VERSION', 'v0.1.0')
+        current_version = os.getenv('VERSION', 'v0.1.0').lstrip('v')
         # Check GitHub API for latest release
         response = requests.get(
             'https://api.github.com/repos/lmacka/coopi/releases/latest',
             timeout=5
         )
         if response.status_code == 200:
-            latest_version = response.json()['tag_name']
+            latest_version = response.json()['tag_name'].lstrip('v')
             latest_url = response.json()['html_url']
             return {
-                'current': current_version,
-                'latest': latest_version,
+                'current': f"v{current_version}",
+                'latest': f"v{latest_version}",
                 'url': latest_url,
                 'update_available': latest_version != current_version
             }
     except Exception as e:
         logging.warning("Failed to check version: %s", str(e))
     return {
-        'current': current_version,
+        'current': f"v{current_version}",
         'latest': None,
         'url': None,
         'update_available': False
