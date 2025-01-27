@@ -1,11 +1,11 @@
-name: Balena Deploy
+name: Release and Deploy
 
 on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'
+    paths-ignore:
+      - '**.md'
   pull_request:
     branches:
       - main
@@ -13,13 +13,49 @@ on:
 # Add permissions block at workflow level
 permissions:
   contents: write
-  pull-requests: write
+  packages: write
 
 jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Run security scan
+      - name: Security Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          severity: 'CRITICAL'
+          exit-code: '1'
+
+      # Run pylint
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint
+          pip install -r requirements.txt
+          pip install fake-rpi
+      
+      - name: Run pylint
+        run: |
+          pylint $(git ls-files '*.py') --fail-under=9.0
+
   versioning:
+    needs: checks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
-      new_version: ${{ steps.semver.outputs.new_version }}
+      new_version: ${{ steps.semver.outputs.version }}
+      new_tag: v${{ steps.semver.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,32 +69,39 @@ jobs:
           tag_prefix: "v"
           major_pattern: "(MAJOR)"
           minor_pattern: "(MINOR)"
-          version_format: "${major}.${minor}.${patch}"
+          format: "${major}.${minor}.${patch}"
           bump_each_commit: false
           search_commit_body: true
           
       - name: Update balena.yml version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          sed -i "s/^version: .*$/version: ${{ steps.semver.outputs.new_version }}/" balena.yml
+          sed -i "s/^version: .*$/version: ${{ steps.semver.outputs.version }}/" balena.yml
           
       - name: Commit version update
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add balena.yml
-          git commit -m "Update version to ${{ steps.semver.outputs.new_version }}" || echo "No changes to commit"
+          git commit -m "Update version to ${{ steps.semver.outputs.version }}" || echo "No changes to commit"
           
       - name: Push changes
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
 
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.semver.outputs.version }}
+          release_name: Release v${{ steps.semver.outputs.version }}
+          draft: false
+          prerelease: false
+
   deploy:
-    needs: versioning
+    needs: [checks, versioning]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -69,15 +112,4 @@ jobs:
         with:
           balena_token: ${{ secrets.BALENA_TOKEN }}
           fleet: gh_lmacka/chooks
-          version: ${{ steps.semver.outputs.new_version }}
-          create_tag: true
-          
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ needs.versioning.outputs.new_version }}
-          release_name: Release v${{ needs.versioning.outputs.new_version }}
-          draft: false
-          prerelease: false 
+          version: ${{ needs.versioning.outputs.new_version }} 

@@ -1,56 +1,19 @@
 name: Docker Build and Push
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'coopi/**'
-      - 'requirements.txt'
-      - 'Dockerfile'
-      - 'docker-compose.yaml'
-      - '.github/workflows/docker-build.yml'
-      - '.dockerignore'
+  release:
+    types: [published]
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       packages: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Get latest version
-        id: version
-        run: |
-          # Get latest tag or default to v0.1.0
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0")
-          # Increment patch version
-          MAJOR=$(echo $LATEST_TAG | cut -d. -f1)
-          MINOR=$(echo $LATEST_TAG | cut -d. -f2)
-          PATCH=$(echo $LATEST_TAG | cut -d. -f3)
-          NEW_PATCH=$((PATCH + 1))
-          NEW_TAG="${MAJOR}.${MINOR}.${NEW_PATCH}"
-          echo "new_version=$NEW_TAG" >> $GITHUB_OUTPUT
-          echo "New version: $NEW_TAG"
-
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.version.outputs.new_version }}
-          release_name: Release ${{ steps.version.outputs.new_version }}
-          draft: false
-          prerelease: false
-          body: |
-            Changes in this Release:
-            - Updated files: ${{ join(github.event.commits.*.modified, ', ') }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -71,16 +34,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/arm/v6
-          build-args: |
-            VERSION=${{ steps.version.outputs.new_version }}
-            BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-            VCS_REF=${{ github.sha }}
-
       - name: Push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -89,6 +42,6 @@ jobs:
           platforms: linux/arm/v6,linux/arm/v7
           tags: |
             lmacka/coopi:latest
-            lmacka/coopi:${{ steps.version.outputs.new_version }}
+            lmacka/coopi:${{ github.event.release.tag_name }}
             ghcr.io/${{ github.repository_owner }}/coopi:latest
-            ghcr.io/${{ github.repository_owner }}/coopi:${{ steps.version.outputs.new_version }}
+            ghcr.io/${{ github.repository_owner }}/coopi:${{ github.event.release.tag_name }}
