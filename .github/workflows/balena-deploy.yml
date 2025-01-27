@@ -63,14 +63,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+              
       - name: Balena Deploy
         uses: balena-io/deploy-to-balena-action@master
         with:
           balena_token: ${{ secrets.BALENA_TOKEN }}
-          fleet: 2155443
-          environment: production
-          versionbot: false
+          fleet: gh_lmacka/chooks
+          debug: true
           
       - name: Create Release
         uses: actions/create-release@v1
