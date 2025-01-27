@@ -34,10 +34,7 @@ class BalenaFormatter(logging.Formatter):
 
         # Format with timestamp
         timestamp = datetime.now(local_tz).strftime('%Y-%m-%d %H:%M:%S')
-        return f"{color}{timestamp} [{
-            record.service}] {
-            record.levelname}: {
-            record.getMessage()}{reset_color}"
+        return f"{color}{timestamp} [{record.service}] {record.levelname}: {record.getMessage()}{reset_color}"
 
 # Configure logging
 
