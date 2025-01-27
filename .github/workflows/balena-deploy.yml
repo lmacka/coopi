@@ -69,12 +69,13 @@ jobs:
           tag_prefix: "v"
           major_pattern: "(MAJOR)"
           minor_pattern: "(MINOR)"
-          format: "${major}.${minor}.${patch}"
+          version_format: "${major}.${minor}.${patch}"
           bump_each_commit: false
           search_commit_body: true
           
       - name: Update balena.yml version
         run: |
+          echo "version=${{ steps.semver.outputs.version }}" >> "$GITHUB_ENV"
           sed -i "s/^version: .*$/version: ${{ steps.semver.outputs.version }}/" balena.yml
           
       - name: Commit version update
@@ -82,7 +83,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add balena.yml
-          git commit -m "Update version to ${{ steps.semver.outputs.version }}" || echo "No changes to commit"
+          git commit -m "Update version to ${{ env.version }}" || echo "No changes to commit"
           
       - name: Push changes
         uses: ad-m/github-push-action@master
@@ -95,8 +96,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.semver.outputs.version }}
-          release_name: Release v${{ steps.semver.outputs.version }}
+          tag_name: v${{ env.version }}
+          release_name: Release v${{ env.version }}
           draft: false
           prerelease: false
 
