@@ -36,8 +36,6 @@ jobs:
           version_format: "${major}.${minor}.${patch}"
           bump_each_commit: false
           search_commit_body: true
-          # Start from the latest version we have
-          default_version: "0.1.18"
           
       - name: Update balena.yml version
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -70,7 +68,7 @@ jobs:
         uses: balena-io/deploy-to-balena-action@master
         with:
           balena_token: ${{ secrets.BALENA_TOKEN }}
-          fleet: lmacka/coopi
+          fleet: gh_lmacka/chooks
           environment: production
           versionbot: false
           
