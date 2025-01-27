@@ -14,6 +14,7 @@
 ![Open Issues](https://img.shields.io/github/issues/lmacka/coopi)
 ![Code Size](https://img.shields.io/github/languages/code-size/lmacka/coopi)
 ![Platform](https://img.shields.io/badge/platform-raspberry%20pi-C51A4A)
+[![balena Deploy](https://img.shields.io/badge/balena-deploy-blue)](https://dashboard.balena-cloud.com/deploy?repoUrl=https://github.com/lmacka/coopi)
 
 
 This is a simple door controller running on a Pi Zero to allow ad-hoc operation and scheduling of a coop door.
@@ -43,12 +44,27 @@ This is a simple door controller running on a Pi Zero to allow ad-hoc operation 
 </p>
 
 
-## Quickstart
-If you have built the unit as per the above instructions, you can simply install docker-compose and run
+## Getting Started
+
+You've got two easy ways to get your chickens' automated door up and running:
+
+### Option 1: Deploy with Balena (Recommended)
+The easiest way to get started is using Balena. Just click the button below and follow the prompts:
+
+[![balena Deploy Button](https://www.balena.io/deploy.svg)](https://dashboard.balena-cloud.com/deploy?repoUrl=https://github.com/lmacka/coopi)
+
+This will:
+1. Set up a Balena account if you don't have one
+2. Create a new application for your coop door
+3. Let you easily manage your device(s) through Balena's dashboard
+
+### Option 2: Run with Docker
+If you prefer the DIY approach, you can run it directly with Docker. Just make sure you have docker-compose installed and run:
+
 ```bash
 curl -s https://raw.githubusercontent.com/lmacka/coopi/main/docker-compose.yaml | docker-compose -f - up -d
 ```
 
-So long as docker is set to start at boot, the application will come back after restarts.
+Both methods will automatically restart the application after power cycles or reboots, so your chooks won't get stuck!
 
 
