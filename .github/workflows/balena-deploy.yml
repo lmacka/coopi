@@ -76,7 +76,7 @@ jobs:
       - name: Update balena.yml version
         run: |
           echo "version=${{ steps.semver.outputs.version }}" >> "$GITHUB_ENV"
-          sed -i "s/^version: .*$/version: ${{ steps.semver.outputs.version }}/" balena.yml
+          sed -i "s/^version:.*$/version: ${{ steps.semver.outputs.version }}/" balena.yml
           
       - name: Commit version update
         run: |

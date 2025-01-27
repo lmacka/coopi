@@ -10,16 +10,23 @@ import RPi.GPIO
 import pytz
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 
+# Configuration
+ACTUATETIME = 90
+RELAY1_PIN = 14
+RELAY2_PIN = 15
+DATA_DIR = "/data"
+STATEFILE = os.path.join(DATA_DIR, "state.json")
+SCHEDULEFILE = os.path.join(DATA_DIR, "schedule.json")
+LOCAL_TIMEZONE = "Australia/Brisbane"
+
 # Configure logging for Balena
-
-
 class BalenaFormatter(logging.Formatter):
     """Custom formatter that includes service name, timestamp and adds color for Balena dashboard"""
-
+    
     def format(self, record):
         # Add service name and format for better visibility in Balena dashboard
         record.service = "coopi"
-
+        
         # Color codes for different log levels
         colors = {
             'ERROR': '\033[91m',  # Red
@@ -28,47 +35,35 @@ class BalenaFormatter(logging.Formatter):
             'DEBUG': '\033[94m',  # Blue
             'CRITICAL': '\033[95m'  # Purple
         }
-
+        
         reset_color = '\033[0m'
         color = colors.get(record.levelname, '')
-
-        # Format with timestamp
-        timestamp = datetime.now(local_tz).strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Format with timestamp using UTC (we'll convert to local time after timezone is verified)
+        timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
         return f"{color}{timestamp} [{record.service}] {record.levelname}: {record.getMessage()}{reset_color}"
-
-# Configure logging
 
 def get_logger():
     """Setup logging configuration for Balena dashboard"""
     app_logger = logging.getLogger()
     app_logger.setLevel(logging.INFO)
-
+    
     # Console handler with custom formatter
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(BalenaFormatter())
-
+    
     # Remove any existing handlers and add our custom handler
     app_logger.handlers = []
     app_logger.addHandler(console_handler)
-
+    
     # Log startup message
     app_logger.info("Coopi service starting up")
     app_logger.info("Python version: %s", sys.version)
     app_logger.info("GPIO version: %s", RPi.GPIO.VERSION)
     return app_logger
 
-# Initialize logging
+# Initialize logging first
 logger = get_logger()
-
-# Configuration
-ACTUATETIME = 90
-RELAY1_PIN = 14
-RELAY2_PIN = 15
-# Use absolute paths in the data directory
-DATA_DIR = "/data"
-STATEFILE = os.path.join(DATA_DIR, "state.json")
-SCHEDULEFILE = os.path.join(DATA_DIR, "schedule.json")
-LOCAL_TIMEZONE = "Australia/Brisbane"
 
 # Initialize GPIO pins with better logging
 
@@ -97,8 +92,6 @@ lock = threading.Lock()
 app = Flask(__name__)
 
 # Verify and set the local timezone
-
-
 def verify_timezone():
     try:
         # First try to get timezone from environment variable
@@ -109,20 +102,18 @@ def verify_timezone():
         # Verify by checking offset calculation
         offset = current_time.utcoffset()
         if offset is None:
-            raise pytz.exceptions.UnknownTimeZoneError(
-                "Invalid timezone offset")
-        logging.info("Verified timezone: %s", tz_name)
-        logging.info("Current local time: %s", current_time)
-        logging.info("UTC offset: %s", offset)
+            raise pytz.exceptions.UnknownTimeZoneError("Invalid timezone offset")
+        logger.info("Verified timezone: %s", tz_name)
+        logger.info("Current local time: %s", current_time)
+        logger.info("UTC offset: %s", offset)
         return timezone
     except (pytz.exceptions.UnknownTimeZoneError, pytz.exceptions.InvalidTimeError) as e:
-        logging.error("Invalid timezone: %s - %s", tz_name, str(e))
+        logger.error("Invalid timezone: %s - %s", tz_name, str(e))
         # Fall back to UTC rather than exiting
-        logging.warning("Falling back to UTC timezone")
+        logger.warning("Falling back to UTC timezone")
         return pytz.UTC
 
-
-# Verify and set the local timezone
+# Initialize timezone after logging is set up
 local_tz = verify_timezone()
 
 # Ensure the state file exists with a default state
