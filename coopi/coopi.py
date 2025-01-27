@@ -41,29 +41,27 @@ class BalenaFormatter(logging.Formatter):
 
 # Configure logging
 
-
-def setup_logging():
+def get_logger():
     """Setup logging configuration for Balena dashboard"""
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    app_logger = logging.getLogger()
+    app_logger.setLevel(logging.INFO)
 
     # Console handler with custom formatter
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(BalenaFormatter())
 
     # Remove any existing handlers and add our custom handler
-    logger.handlers = []
-    logger.addHandler(console_handler)
+    app_logger.handlers = []
+    app_logger.addHandler(console_handler)
 
     # Log startup message
-    logging.info("Coopi service starting up")
-    logging.info("Python version: %s", sys.version)
-    logging.info("GPIO version: %s", RPi.GPIO.VERSION)
-    return logger
-
+    app_logger.info("Coopi service starting up")
+    app_logger.info("Python version: %s", sys.version)
+    app_logger.info("GPIO version: %s", RPi.GPIO.VERSION)
+    return app_logger
 
 # Initialize logging
-logger = setup_logging()
+logger = get_logger()
 
 # Configuration
 ACTUATETIME = 90
@@ -230,30 +228,25 @@ def close_door():
 
 
 def check_schedule():
-    logging.info("Automatic schedule checker started")
+    """Check and execute scheduled door operations"""
+    logger.info("Automatic schedule checker started")
     while True:
         try:
             schedule_data = load_schedule()
             current_time = datetime.now(local_tz).strftime("%H:%M")
 
-            if schedule_data.get("open_enabled") and schedule_data.get(
-                    "open_time") == current_time:
-                logging.info(
-                    "Automatically opening door (scheduled for %s)",
-                    current_time)
+            if schedule_data.get("open_enabled") and schedule_data.get("open_time") == current_time:
+                logger.info("Automatically opening door (scheduled for %s)", current_time)
                 open_door()
 
-            if schedule_data.get("close_enabled") and schedule_data.get(
-                    "close_time") == current_time:
-                logging.info(
-                    "Automatically closing door (scheduled for %s)",
-                    current_time)
+            if schedule_data.get("close_enabled") and schedule_data.get("close_time") == current_time:
+                logger.info("Automatically closing door (scheduled for %s)", current_time)
                 close_door()
 
             time.sleep(60)
 
-        except Exception as e:
-            logging.error("Schedule check error: %s", e)
+        except (IOError, json.JSONDecodeError, RPi.GPIO.error) as e:
+            logger.error("Schedule check error: %s", e)
             time.sleep(60)
 
 
