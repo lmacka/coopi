@@ -10,6 +10,11 @@ on:
     branches:
       - main
 
+# Add permissions block at workflow level
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   versioning:
     runs-on: ubuntu-latest
@@ -19,6 +24,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Semantic versioning
         id: semver
