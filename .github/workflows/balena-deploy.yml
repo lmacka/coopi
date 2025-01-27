@@ -69,7 +69,8 @@ jobs:
         with:
           balena_token: ${{ secrets.BALENA_TOKEN }}
           fleet: gh_lmacka/chooks
-          debug: true
+          version: ${{ steps.semver.outputs.new_version }}
+          create_tag: true
           
       - name: Create Release
         uses: actions/create-release@v1
