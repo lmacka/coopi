@@ -1,0 +1,79 @@
+name: Balena Deploy
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  versioning:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.semver.outputs.new_version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Semantic versioning
+        id: semver
+        uses: paulhatch/semantic-version@v5.3.0
+        with:
+          tag_prefix: "v"
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          version_format: "${major}.${minor}.${patch}"
+          bump_each_commit: false
+          search_commit_body: true
+          # Start from the latest version we have
+          default_version: "0.1.18"
+          
+      - name: Update balena.yml version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          sed -i "s/^version: .*$/version: ${{ steps.semver.outputs.new_version }}/" balena.yml
+          
+      - name: Commit version update
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add balena.yml
+          git commit -m "Update version to ${{ steps.semver.outputs.new_version }}" || echo "No changes to commit"
+          
+      - name: Push changes
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+
+  deploy:
+    needs: versioning
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Balena Deploy
+        uses: balena-io/deploy-to-balena-action@master
+        with:
+          balena_token: ${{ secrets.BALENA_TOKEN }}
+          fleet: lmacka/coopi
+          environment: production
+          versionbot: false
+          
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.versioning.outputs.new_version }}
+          release_name: Release v${{ needs.versioning.outputs.new_version }}
+          draft: false
+          prerelease: false 
