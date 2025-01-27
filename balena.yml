@@ -1,0 +1,27 @@
+name: coopi
+version: 0.1.18
+description: 'A Pi-powered automatic chicken coop door controller'
+type: 'sw.application'
+assets:
+  repository:
+    type: 'blob.asset'
+    data:
+      url: 'https://github.com/lmacka/coopi'
+  logo:
+    type: 'blob.asset'
+    data:
+      url: 'https://raw.githubusercontent.com/lmacka/coopi/main/coopi/static/favicon.png'
+data:
+  applicationEnvironmentVariables:
+    - TZ: 'Australia/Brisbane'
+  applicationConfigVariables:
+    - BALENA_HOST_CONFIG_gpu_mem: '16'
+  defaultDeviceType: 'raspberry-pi'
+  supportedDeviceTypes:
+    - 'raspberry-pi'
+    - 'raspberry-pi-zero'
+    - 'raspberry-pi-zero-2'
+  storage:
+    - name: 'coopi_data'
+      mountpoint: '/data'
+      persistent: true 

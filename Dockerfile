@@ -1,17 +1,6 @@
 # Use a balena Python runtime as a parent image
 FROM balenalib/raspberry-pi-python:3.11-bookworm-run
 
-ARG VERSION
-ARG BUILD_DATE
-ARG VCS_REF
-
-LABEL org.label-schema.version=$VERSION \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-ref=$VCS_REF
-
-# Set version as an environment variable during build
-ENV APP_VERSION=$VERSION
-
 # Set environment variables
 ENV TZ=Australia/Brisbane \
     PYTHONUNBUFFERED=1
@@ -23,13 +12,18 @@ COPY requirements.txt .
 
 # Install dependencies and clean up in one layer
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends tzdata && \
+    apt-get install -y --no-install-recommends \
+    tzdata \
+    curl && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone && \
     pip install --no-cache-dir --extra-index-url https://www.piwheels.org/simple -r requirements.txt && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    mkdir -p var
+    rm -rf /var/lib/apt/lists/*
+
+# Create data directory with appropriate permissions
+RUN mkdir -p /data && \
+    chmod 777 /data
 
 # Copy application code
 COPY coopi coopi/

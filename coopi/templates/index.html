@@ -104,21 +104,6 @@
         margin: 10px 0;
         font-family: monospace;
       }
-      .version-info {
-          position: fixed;
-          bottom: 10px;
-          right: 10px;
-          font-size: 0.8em;
-          color: #6EACDA;
-          opacity: 0.8;
-      }
-      .version-info a {
-          color: #6EACDA;
-          text-decoration: none;
-      }
-      .version-info a:hover {
-          text-decoration: underline;
-      }
       .progress-container {
           width: 200px;
           background-color: #021526;
@@ -192,13 +177,12 @@
           })
           .then(response => response.json())
           .then(data => {
-              // Handle the response data
+              // Don't reload immediately - let the progress bar complete
               console.log(data);
-              location.reload(); // Reload the page or update the UI as needed
           })
           .catch(error => {
               console.error('Error:', error);
-              location.reload(); // Reload the page or handle the error as needed
+              location.reload(); // Only reload on error
           });
       }
 
@@ -289,12 +273,6 @@
             </div>
           </div>
       </div>
-    </div>
-    <div class="version-info">
-        v{{ version_info.current }}
-        {% if version_info.update_available %}
-            <a href="{{ version_info.url }}" target="_blank">⚠️ {{ version_info.latest }}</a>
-        {% endif %}
     </div>
   </body>
 </html>

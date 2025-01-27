@@ -8,22 +8,76 @@ import time
 from datetime import datetime
 import RPi.GPIO
 import pytz
-from flask import Flask, render_template, request, redirect, url_for
-import requests
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+
+# Configure logging for Balena
+class BalenaFormatter(logging.Formatter):
+    """Custom formatter that includes service name, timestamp and adds color for Balena dashboard"""
+    
+    def format(self, record):
+        # Add service name and format for better visibility in Balena dashboard
+        record.service = "coopi"
+        
+        # Color codes for different log levels
+        colors = {
+            'ERROR': '\033[91m',  # Red
+            'WARNING': '\033[93m',  # Yellow
+            'INFO': '\033[92m',  # Green
+            'DEBUG': '\033[94m',  # Blue
+            'CRITICAL': '\033[95m'  # Purple
+        }
+        
+        reset_color = '\033[0m'
+        color = colors.get(record.levelname, '')
+        
+        # Format with timestamp
+        timestamp = datetime.now(local_tz).strftime('%Y-%m-%d %H:%M:%S')
+        return f"{color}{timestamp} [{record.service}] {record.levelname}: {record.getMessage()}{reset_color}"
+
+# Configure logging
+def setup_logging():
+    """Setup logging configuration for Balena dashboard"""
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    
+    # Console handler with custom formatter
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(BalenaFormatter())
+    
+    # Remove any existing handlers and add our custom handler
+    logger.handlers = []
+    logger.addHandler(console_handler)
+    
+    # Log startup message
+    logging.info("Coopi service starting up")
+    logging.info("Python version: %s", sys.version)
+    logging.info("GPIO version: %s", RPi.GPIO.VERSION)
+    return logger
+
+# Initialize logging
+logger = setup_logging()
 
 # Configuration
 ACTUATETIME = 90
 RELAY1_PIN = 14
 RELAY2_PIN = 15
-STATEFILE = "var/state.json"
-SCHEDULEFILE = "var/schedule.json"
+# Use absolute paths in the data directory
+DATA_DIR = "/data"
+STATEFILE = os.path.join(DATA_DIR, "state.json")
+SCHEDULEFILE = os.path.join(DATA_DIR, "schedule.json")
 LOCAL_TIMEZONE = "Australia/Brisbane"
 
-# Initialize GPIO pins
+# Initialize GPIO pins with better logging
 def init_gpio():
-    RPi.GPIO.setmode(RPi.GPIO.BCM)
-    RPi.GPIO.setup(RELAY1_PIN, RPi.GPIO.OUT)
-    RPi.GPIO.setup(RELAY2_PIN, RPi.GPIO.OUT)
+    try:
+        RPi.GPIO.setmode(RPi.GPIO.BCM)
+        RPi.GPIO.setup(RELAY1_PIN, RPi.GPIO.OUT)
+        RPi.GPIO.setup(RELAY2_PIN, RPi.GPIO.OUT)
+        logging.info("GPIO pins initialized successfully: RELAY1=%d, RELAY2=%d", 
+                    RELAY1_PIN, RELAY2_PIN)
+    except Exception as e:
+        logging.error("Failed to initialize GPIO: %s", e)
+        raise
 
 # Call the initialization functions when the module is loaded
 init_gpio()
@@ -33,11 +87,6 @@ lock = threading.Lock()
 
 # Flask application
 app = Flask(__name__)
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 
 # Verify and set the local timezone
 def verify_timezone():
@@ -83,44 +132,97 @@ if not os.path.exists(SCHEDULEFILE):
             ensure_ascii=False
         )
 
+# Add directory creation
+def ensure_data_directory():
+    """Ensure the data directory exists"""
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+        logging.info("Created data directory at %s", DATA_DIR)
+
+# Call it during initialization
+ensure_data_directory()
+
+def load_state():
+    """Load the current state with error handling"""
+    try:
+        if os.path.exists(STATEFILE):
+            with open(STATEFILE, "r", encoding='utf-8') as state_file:
+                return json.load(state_file)
+    except (IOError, json.JSONDecodeError) as e:
+        logging.error("Error loading state file: %s", e)
+    return {"state": "closed"}  # Default state
+
+def save_state(state):
+    """Save the state with error handling"""
+    try:
+        with open(STATEFILE, "w", encoding='utf-8') as state_file:
+            json.dump(state, state_file, ensure_ascii=False)
+    except IOError as e:
+        logging.error("Error saving state file: %s", e)
+
+# Update the door operations with better logging
 def open_door():
     with lock:
-        RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.LOW)
-        RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
-        time.sleep(ACTUATETIME)
-        with open(STATEFILE, "w", encoding='utf-8') as state_file:
-            json.dump({"state": "open"}, state_file, ensure_ascii=False)
-        # Reset both relays to NC state
-        RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
-        RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
+        try:
+            current_state = load_state()
+            if current_state["state"] == "open":
+                logging.info("Door is already open, skipping operation")
+                return
+                
+            logging.info("Opening door")
+            RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.LOW)
+            RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
+            time.sleep(ACTUATETIME)
+            save_state({"state": "open"})
+            
+            # Reset both relays to NC state
+            RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
+            RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
+        except Exception as e:
+            logging.error("Failed to open door: %s", e)
+            raise
 
 def close_door():
     with lock:
-        RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
-        RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.LOW)
-        time.sleep(ACTUATETIME)
-        with open(STATEFILE, "w", encoding='utf-8') as state_file:
-            json.dump({"state": "closed"}, state_file, ensure_ascii=False)
-        # Reset both relays to NC state
-        RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
-        RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
-        return "Door closed"
+        try:
+            current_state = load_state()
+            if current_state["state"] == "closed":
+                logging.info("Door is already closed, skipping operation")
+                return
+                
+            logging.info("Closing door")
+            RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
+            RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.LOW)
+            time.sleep(ACTUATETIME)
+            save_state({"state": "closed"})
+            
+            # Reset both relays to NC state
+            RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
+            RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
+        except Exception as e:
+            logging.error("Failed to close door: %s", e)
+            raise
 
 def check_schedule():
-    logging.info("Starting schedule check thread...")
+    logging.info("Automatic schedule checker started")
     while True:
-        schedule_data = load_schedule()
-        current_time = datetime.now(local_tz).strftime("%H:%M")
-        logging.debug("Current time: %s", current_time)
-        logging.debug("Schedule data: %s", schedule_data)
-        if schedule_data.get("open_enabled") and schedule_data.get("open_time") == current_time:
-            logging.info("Opening door on schedule...")
-            open_door()
-        if schedule_data.get("close_enabled") and schedule_data.get("close_time") == current_time:
-            logging.info("Closing door on schedule...")
-            close_door()
-        logging.debug("Sleeping for 60 seconds...")
-        time.sleep(60)  # Check every minute
+        try:
+            schedule_data = load_schedule()
+            current_time = datetime.now(local_tz).strftime("%H:%M")
+            
+            if schedule_data.get("open_enabled") and schedule_data.get("open_time") == current_time:
+                logging.info("Automatically opening door (scheduled for %s)", current_time)
+                open_door()
+            
+            if schedule_data.get("close_enabled") and schedule_data.get("close_time") == current_time:
+                logging.info("Automatically closing door (scheduled for %s)", current_time)
+                close_door()
+            
+            time.sleep(60)
+            
+        except Exception as e:
+            logging.error("Schedule check error: %s", e)
+            time.sleep(60)
 
 def load_schedule():
     if os.path.exists(SCHEDULEFILE):
@@ -143,36 +245,15 @@ def signal_handler(_sig, _frame):
     cleanup()
     sys.exit(0)
 
-def get_version_info():
-    try:
-        # Get version embedded during build
-        current_version = os.getenv('APP_VERSION', 'v0.1.0').lstrip('v')
-        
-        # Check GitHub API for latest release
-        response = requests.get(
-            'https://api.github.com/repos/lmacka/coopi/releases/latest',
-            timeout=5
-        )
-        if response.status_code == 200:
-            latest_version = response.json()['tag_name'].lstrip('v')
-            latest_url = response.json()['html_url']
-            return {
-                'current': f"v{current_version}",
-                'latest': f"v{latest_version}",
-                'url': latest_url,
-                'update_available': latest_version != current_version
-            }
-    except Exception as e:
-        logging.warning("Failed to check version: %s", str(e))
-    return {
-        'current': f"v{current_version}",
-        'latest': None,
-        'url': None,
-        'update_available': False
-    }
-
 @app.route('/')
 def index():
+    # Skip logging for healthcheck requests
+    user_agent = request.headers.get('User-Agent', '')
+    if 'curl' not in user_agent.lower():  # Only log non-healthcheck requests
+        # Get client IP or hostname
+        client = request.headers.get('X-Forwarded-For', request.remote_addr)
+        logging.info("Web interface accessed from %s", client)
+    
     # Get current door state
     with open(STATEFILE, "r", encoding='utf-8') as state_file:
         doorstate = json.load(state_file)["state"]
@@ -184,33 +265,51 @@ def index():
     # Get current time in configured timezone
     current_time = datetime.now(local_tz).strftime("%d/%m %I:%M %p %Z")
 
-    # Get version info
-    version_info = get_version_info()
-
     return render_template('index.html',
                          doorstate=doorstate,
                          schedule=schedule_data,
                          current_time=current_time,
-                         version_info=version_info)
+                         actuate_time=ACTUATETIME)
 
 @app.route("/open", methods=["POST"])
 def open_door_route():
+    logging.info("Opening door from web interface")
     open_door()
-    return redirect(url_for("index"))
+    return jsonify({"status": "success"})
 
 @app.route("/close", methods=["POST"])
 def close_door_route():
+    logging.info("Closing door from web interface")
     close_door()
-    return redirect(url_for("index"))
+    return jsonify({"status": "success"})
 
 @app.route("/schedule", methods=["POST"])
 def update_schedule():
+    old_schedule = load_schedule()
     schedule_data = {
         "open_time": request.form["open_time"],
         "close_time": request.form["close_time"],
         "open_enabled": "open_enabled" in request.form,
         "close_enabled": "close_enabled" in request.form,
     }
+    
+    # Log only actual changes with clearer messages
+    if old_schedule.get("open_enabled") != schedule_data["open_enabled"]:
+        status = "enabled" if schedule_data["open_enabled"] else "disabled"
+        logging.info("Automatic door opening %s for %s", 
+                    status, schedule_data["open_time"])
+    
+    if old_schedule.get("close_enabled") != schedule_data["close_enabled"]:
+        status = "enabled" if schedule_data["close_enabled"] else "disabled"
+        logging.info("Automatic door closing %s for %s", 
+                    status, schedule_data["close_time"])
+    
+    if old_schedule.get("open_time") != schedule_data["open_time"]:
+        logging.info("Automatic opening time set to %s", schedule_data["open_time"])
+    
+    if old_schedule.get("close_time") != schedule_data["close_time"]:
+        logging.info("Automatic closing time set to %s", schedule_data["close_time"])
+    
     save_schedule(schedule_data)
     return redirect(url_for("index"))
 
