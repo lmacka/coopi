@@ -3,3 +3,4 @@ RPi.GPIO==0.7.1
 requests==2.32.3
 gunicorn==23.0.0
 pytz==2024.2
+paho-mqtt==2.1.0

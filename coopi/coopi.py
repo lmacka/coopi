@@ -9,6 +9,7 @@ from datetime import datetime
 import RPi.GPIO
 import pytz
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+import paho.mqtt.client as mqtt
 
 # Configuration
 ACTUATETIME = 90
@@ -18,6 +19,13 @@ DATA_DIR = "/data"
 STATEFILE = os.path.join(DATA_DIR, "state.json")
 SCHEDULEFILE = os.path.join(DATA_DIR, "schedule.json")
 LOCAL_TIMEZONE = "Australia/Brisbane"
+MQTTCONFIGFILE = os.path.join(DATA_DIR, "mqtt.json")
+MQTT_UNIQUE_ID = "coopi_coop_door"
+
+# MQTT runtime state. Populated by start_mqtt() only when a broker is configured; while the
+# "client" key is absent every publish helper is a no-op, so the app behaves exactly as
+# before when the Home Assistant integration is not set up.
+mqtt_state = {}
 
 # Configure logging for Balena
 class BalenaFormatter(logging.Formatter):
@@ -177,9 +185,11 @@ def open_door():
             current_state = load_state()
             if current_state["state"] == "open":
                 logging.info("Door is already open, skipping operation")
+                publish_door_state("open")
                 return
 
             logging.info("Opening door")
+            publish_door_state("opening")
             RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.LOW)
             RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
             time.sleep(ACTUATETIME)
@@ -188,6 +198,7 @@ def open_door():
             # Reset both relays to NC state
             RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
             RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
+            publish_door_state("open")
         except Exception as e:
             logging.error("Failed to open door: %s", e)
             raise
@@ -199,9 +210,11 @@ def close_door():
             current_state = load_state()
             if current_state["state"] == "closed":
                 logging.info("Door is already closed, skipping operation")
+                publish_door_state("closed")
                 return
 
             logging.info("Closing door")
+            publish_door_state("closing")
             RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
             RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.LOW)
             time.sleep(ACTUATETIME)
@@ -210,6 +223,7 @@ def close_door():
             # Reset both relays to NC state
             RPi.GPIO.output(RELAY1_PIN, RPi.GPIO.HIGH)
             RPi.GPIO.output(RELAY2_PIN, RPi.GPIO.HIGH)
+            publish_door_state("closed")
         except Exception as e:
             logging.error("Failed to close door: %s", e)
             raise
@@ -249,6 +263,127 @@ def load_schedule():
 def save_schedule(schedule_data):
     with open(SCHEDULEFILE, "w", encoding='utf-8') as schedule_file:
         json.dump(schedule_data, schedule_file, ensure_ascii=False)
+
+
+def load_mqtt_config():
+    """Build MQTT config from environment variables, falling back to /data/mqtt.json.
+
+    Environment variables win; the file fills any gaps. Returns the config dict when a
+    broker host is configured, otherwise None (Home Assistant integration disabled).
+    """
+    cfg = {
+        "host": os.getenv("MQTT_HOST"),
+        "port": os.getenv("MQTT_PORT"),
+        "user": os.getenv("MQTT_USER"),
+        "password": os.getenv("MQTT_PASS"),
+        "base_topic": os.getenv("MQTT_BASE_TOPIC"),
+        "discovery_prefix": os.getenv("MQTT_DISCOVERY_PREFIX"),
+    }
+    if os.path.exists(MQTTCONFIGFILE):
+        try:
+            with open(MQTTCONFIGFILE, "r", encoding="utf-8") as cfg_file:
+                file_cfg = json.load(cfg_file)
+            for key, value in file_cfg.items():
+                if cfg.get(key) is None:
+                    cfg[key] = value
+        except (IOError, json.JSONDecodeError) as exc:
+            logging.error("Error reading MQTT config file: %s", exc)
+    if not cfg.get("host"):
+        return None
+    cfg["port"] = int(cfg.get("port") or 1883)
+    cfg["base_topic"] = cfg.get("base_topic") or "coopi/coop_door"
+    cfg["discovery_prefix"] = cfg.get("discovery_prefix") or "homeassistant"
+    return cfg
+
+
+def mqtt_topic(suffix):
+    """Return the full topic for the given suffix under the configured base topic."""
+    return f"{mqtt_state['cfg']['base_topic']}/{suffix}"
+
+
+def publish_door_state(state):
+    """Publish the cover state (open/opening/closed/closing) to HA, retained.
+
+    No-op when MQTT is disabled, so the door functions are safe to call either way.
+    """
+    client = mqtt_state.get("client")
+    if client is not None:
+        client.publish(mqtt_topic("state"), state, qos=1, retain=True)
+
+
+def publish_discovery():
+    """Publish the Home Assistant MQTT discovery config for the coop door cover, retained."""
+    cfg = mqtt_state["cfg"]
+    topic = f"{cfg['discovery_prefix']}/cover/{MQTT_UNIQUE_ID}/config"
+    payload = {
+        "name": "Coop Door",
+        "unique_id": MQTT_UNIQUE_ID,
+        "device_class": "garage",
+        "command_topic": mqtt_topic("set"),
+        "state_topic": mqtt_topic("state"),
+        "availability_topic": mqtt_topic("availability"),
+        "payload_open": "OPEN",
+        "payload_close": "CLOSE",
+        "state_open": "open",
+        "state_opening": "opening",
+        "state_closed": "closed",
+        "state_closing": "closing",
+        "optimistic": False,
+        "device": {
+            "identifiers": [MQTT_UNIQUE_ID],
+            "name": "Coop Door",
+            "manufacturer": "lmacka",
+            "model": "coopi",
+        },
+    }
+    mqtt_state["client"].publish(topic, json.dumps(payload), qos=1, retain=True)
+
+
+def on_mqtt_connect(client, _userdata, _flags, reason_code, _properties):
+    """Publish availability, discovery and current state, then subscribe to commands."""
+    if reason_code != 0:
+        logging.error("MQTT connection failed: %s", reason_code)
+        return
+    client.publish(mqtt_topic("availability"), "online", qos=1, retain=True)
+    publish_discovery()
+    publish_door_state(load_state().get("state", "closed"))
+    client.subscribe(mqtt_topic("set"), qos=1)
+    logging.info("MQTT connected; published discovery and current state")
+
+
+def on_mqtt_message(_client, _userdata, msg):
+    """Handle an HA cover command by running the door operation on a worker thread.
+
+    A worker thread is used so the blocking actuation never stalls the MQTT network loop.
+    """
+    command = msg.payload.decode("utf-8", "ignore").strip().upper()
+    logging.info("MQTT command received: %s", command)
+    if command == "OPEN":
+        threading.Thread(target=open_door, daemon=True).start()
+    elif command == "CLOSE":
+        threading.Thread(target=close_door, daemon=True).start()
+    else:
+        logging.warning("Ignoring unknown MQTT command: %s", command)
+
+
+def start_mqtt():
+    """Start the MQTT client loop when a broker is configured; otherwise do nothing."""
+    cfg = load_mqtt_config()
+    if cfg is None:
+        logging.info("MQTT not configured (no MQTT_HOST); Home Assistant integration disabled")
+        return
+    mqtt_state["cfg"] = cfg
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="coopi")
+    if cfg.get("user"):
+        client.username_pw_set(cfg["user"], cfg.get("password"))
+    client.will_set(mqtt_topic("availability"), "offline", qos=1, retain=True)
+    client.on_connect = on_mqtt_connect
+    client.on_message = on_mqtt_message
+    client.reconnect_delay_set(min_delay=1, max_delay=60)
+    mqtt_state["client"] = client
+    client.connect_async(cfg["host"], cfg["port"], keepalive=60)
+    client.loop_start()
+    logging.info("MQTT client started for broker %s:%s", cfg["host"], cfg["port"])
 
 
 def cleanup():
@@ -382,6 +517,7 @@ def main():
                 schedule_thread = threading.Thread(target=check_schedule)
                 schedule_thread.daemon = True
                 schedule_thread.start()
+                start_mqtt()
                 app.run(host="0.0.0.0", port=8086)
             else:
                 print(f"Invalid command: {command}")
@@ -402,3 +538,4 @@ elif __name__ == "coopi.coopi":
     module_schedule_thread = threading.Thread(target=check_schedule)
     module_schedule_thread.daemon = True
     module_schedule_thread.start()
+    start_mqtt()
