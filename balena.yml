@@ -1,5 +1,5 @@
 name: coopi
-version: 0.1.21
+version: 0.2.0
 description: 'A Pi-powered automatic chicken coop door controller'
 type: 'sw.application'
 assets:
